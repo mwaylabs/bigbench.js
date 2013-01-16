@@ -10,7 +10,7 @@ describe("Bot", function(){
   
   it("registers the bot", function(done){
     var id = bot.id();
-    bot.register(id, function(){
+    bot.register(function(){
       bot.find(id, function(status){
         if(status === "STOPPED"){ done(); }
         else{ throw { message: "Bot not registered!" }}
@@ -20,8 +20,8 @@ describe("Bot", function(){
   
   it("unregisters the bot", function(done){
     var id = bot.id();
-    bot.register(id, function(){
-      bot.unregister(id, function(){
+    bot.register(function(){
+      bot.unregister(function(){
         bot.find(id, function(status){
           if(!status){ done(); }
           else{ throw { message: "Bot not unregistered!" }}
@@ -32,10 +32,10 @@ describe("Bot", function(){
   
   it("updates the status of bot", function(done){
     var id = bot.id();
-    bot.register(id, function(){
+    bot.register(function(){
       bot.find(id, function(status){
         if(status === "STOPPED"){
-          bot.status(id, "RUNNING", function(){
+          bot.status("RUNNING", function(){
             bot.find(id, function(status){
               if(status === "RUNNING"){ done(); }
             });

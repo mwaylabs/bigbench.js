@@ -1,14 +1,13 @@
 var config     = require('./config/config'),
     storage    = require('./modules/storage'),
-    bot        = require('./modules/bot'),
-    id         = bot.id();
+    bot        = require('./modules/bot');
 
 
 // Setup
 storage.open(function(){
   
   // Register
-  bot.register(id);
+  bot.register();
   
   // wait for benchmarks to execute
   
@@ -18,11 +17,11 @@ storage.open(function(){
 
 // Trap Exits
 process.on('SIGINT', function(){
-  bot.unregister(id);
+  bot.unregister();
   process.exit(1);
 });
 
 process.on('uncaughtException', function(err){
-  bot.unregister(id);
+  bot.unregister();
   process.exit(1);
 });
