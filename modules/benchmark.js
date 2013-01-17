@@ -4,9 +4,13 @@ var storage       = require("../modules/storage"),
     config        = require("../config/config"),
     crypto        = require('crypto'),
     http          = require('http'),
+    agent         = new http.Agent({ maxSockets: 1 }),
+    fs            = require('fs'),
     querystring   = require("querystring"),
     status        = "STOPPED",
-    stopCallback  = null;
+    stopCallback  = null,
+    blue          = '\u001b[32m',
+    reset         = '\u001b[0m';
 
 
 // Global running state
@@ -22,9 +26,16 @@ exports.stop    = function(){
 }
 exports.status  = function(){ return status; }
 
-// Globally saves a benchark string as a closure
+// Flushes the redis and globally saves a benchark string as a closure
 exports.save = function(benchmarkString, callback){
-  storage.redis.set("bigbench_benchmark", "(function(){ return " + benchmarkString + "});", callback);
+  var benchmarkClosure = "(function(){ return " + benchmarkString + "});";
+  storage.redis.flushall(function(){
+    storage.redis.set("bigbench_benchmark", benchmarkClosure, function(){
+      storage.redis.publish("bigbench_benchmark_saved", benchmarkClosure);
+      console.log(blue + "Saved" + reset);
+      callback();
+    });
+  });
 }
 
 // Loads and evaluates a benchmark string as closure from the global store
@@ -41,6 +52,9 @@ exports.run = function(done){
   
   // load
   exports.load(function(benchmark){
+    
+    // delay
+    benchmark.delay = benchmark.delay || 0;
     
     // stop
     setTimeout(exports.stop, benchmark.duration * 1000);
@@ -68,8 +82,10 @@ exports.request = function(benchmark, index){
           // next action / request
           index += 1;
           if(index > benchmark.actions.length - 1){ index = 0 };
-          exports.request(benchmark, index);
           
+          // call with or without delay
+          if(benchmark.delay <= 0){ exports.request(benchmark, index); }
+          else{ setTimeout(function(){exports.request(benchmark, index); }, benchmark.delay); }
         });
       });
   
@@ -82,12 +98,13 @@ exports.request = function(benchmark, index){
 
 // Ensures the action maps the parameters, etc.
 exports.validateAction = function(action){
-  var options = {};
+  var options = { agent: agent };
   if(action.host){      options.host      = action.host; };
   if(action.hostname){  options.hostname  = action.hostname; };
   if(action.path){      options.path      = action.path; };
   if(action.port){      options.port      = action.port; };
   if(action.method){    options.method    = action.method; };
+  if(action.auth){      options.auth      = action.auth; };
   
   // add query string to path
   if(action.method !== "POST"){ options.path += "?" + exports.validateParams(action.params); }
@@ -113,3 +130,39 @@ exports.isFunction = function(obj){
 exports.toObject = function(objectOrFunction){
   return exports.isFunction(objectOrFunction) ? objectOrFunction() : objectOrFunction;
 }
+
+// Checks whether a string ends with a suffix like ".js"
+exports.endsWith = function(str, suffix) {
+  return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+// Copies the benchmark template to the current directory for the new command
+exports.createBenchmarkFromTemplate = function(callback){
+  var template = fs.createReadStream('./templates/benchmark.js'),
+      copy     = fs.createWriteStream('benchmark.js');
+  
+  // Callback if finished writing
+  template.on("end", function() {
+    console.log(blue + "Created benchmark.js" + reset);
+    callback();
+  });
+  template.pipe(copy);
+}
+
+// Checks if the supplied argument is a file or a string. If it is a file it
+// is read and then saved to the benchmark
+exports.saveBenchmarkFromArgument = function(callback){
+  if(!process.argv[3]){ throw "Please supply a benchmark file "};
+  var benchmarkString = fs.readFileSync(process.argv[3]);
+  
+  // throws an error if benchmark is invalid
+  eval(benchmarkString);
+  
+  // save
+  exports.save(benchmarkString, callback);
+}
+
+
+
+
+

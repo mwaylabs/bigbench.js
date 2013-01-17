@@ -1,23 +1,36 @@
-var http = require('http');
+var config        = require('./config/config'),
+    storage       = require('./modules/storage'),
+    events        = require('./modules/events'),
+    benchmark     = require('./modules/benchmark'),
+    bot           = require('./modules/bot'),
+    argument      = process.argv[2],
+    argumentError = "Missing Argument. Please supply new, start, stop, benchmark.js or a 'benchmark string'.";
 
-//The url we want is: 'www.random.org/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new'
-var options = {
-  host: 'www.random.org',
-  path: '/integers/?num=1&min=1&max=10&col=1&base=10&format=plain&rnd=new'
-};
 
-callback = function(response) {
-  var str = '';
-
-  //another chunk of data has been recieved, so append it to `str`
-  response.on('data', function (chunk) {
-    str += chunk;
-  });
-
-  //the whole response has been recieved, so we just print it out here
-  response.on('end', function () {
-    console.log(str);
-  });
-}
-
-http.request(options, callback).end();
+// Setup
+storage.open(function(){
+  
+  // Create Benchmark from Template
+  if(argument === "new"){
+    benchmark.createBenchmarkFromTemplate(function(){ process.exit(1); });
+  }
+  
+  // Save Benchmark
+  if(argument === "save"){
+    benchmark.saveBenchmarkFromArgument(function(){ process.exit(1); });
+  }
+  
+  // Start Benchmark
+  if(argument === "start"){
+    events.start("ALL", function(){ process.exit(1); });
+  }
+  
+  // Stop Benchmark
+  if(argument === "stop"){
+    events.stop("ALL", function(){ process.exit(1); });
+  }
+  
+  
+  // Missing Argument
+  //throw argumentError;
+});

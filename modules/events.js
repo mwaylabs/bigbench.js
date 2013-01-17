@@ -1,5 +1,7 @@
 var storage  = require("../modules/storage"),
-    config   = require("../config/config");
+    config   = require("../config/config"),
+    blue      = '\u001b[32m',
+    reset     = '\u001b[0m';
 
 // Waits for a start event
 exports.waitForStart = function(start, subscribed){
@@ -31,10 +33,12 @@ exports.waitForX = function(action, callback, subscribed){
 
 // Sends a start event for a bot id or ALL bots
 exports.start = function(botID, callback){
-  storage.redis.publish("bigbench_bots_start", botID);
+  storage.redis.publish("bigbench_bots_start", botID, callback);
+  console.log(blue + "Started" + reset);
 }
 
 // Sends a start event for a bot id or ALL bots
 exports.stop = function(botID, callback){
-  storage.redis.publish("bigbench_bots_stop", botID);
+  storage.redis.publish("bigbench_bots_stop", botID, callback);
+  console.log(blue + "Stopped" + reset);
 }
