@@ -1,12 +1,13 @@
 var helper    = require('./helper'),
     benchmark = require('../modules/benchmark'),
+    tracker   = require('../modules/tracker'),
     config    = require("../config/config");
 
 describe("Benchmark", function(){
   
   var benchmarkString = "\
     {\
-      duration: 5,\
+      duration: 2,\
       rampUp:   20,\
       actions:[\
         {\
@@ -39,7 +40,7 @@ describe("Benchmark", function(){
   it("stores and loads benchark globally", function(done){
     benchmark.save(benchmarkString, function(){
       benchmark.load(function(aBenchmark){
-        aBenchmark.duration.should.eql(5);
+        aBenchmark.duration.should.eql(2);
         aBenchmark.actions[0].port.should.eql(8888);
         aBenchmark.actions[1].params().should.eql({ say: 'hello', to: 'me' });
         done();
@@ -57,7 +58,21 @@ describe("Benchmark", function(){
   
   it("run the benchmark", function(done){
     benchmark.save(benchmarkString, function(){
-      benchmark.run(done);
+      benchmark.run(function(){
+        tracker.findForAction(0, function(trackings){
+          parseInt(trackings[200]).should.be.above(50);
+          tracker.findForAction(1, function(trackings){
+            parseInt(trackings[200]).should.be.above(50);
+            tracker.findForAction(2, function(trackings){
+              parseInt(trackings[200]).should.be.above(50);
+              tracker.find(function(trackings){
+                parseInt(trackings[200]).should.be.above(150);
+                done();
+              });
+            });
+          });
+        });
+      });
     });
   });
   

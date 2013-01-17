@@ -1,5 +1,6 @@
 var storage       = require("../modules/storage"),
     bot           = require("../modules/bot"),
+    tracker       = require("../modules/tracker"),
     config        = require("../config/config"),
     crypto        = require('crypto'),
     http          = require('http'),
@@ -59,15 +60,15 @@ exports.request = function(benchmark, index){
       request = http.request(options, function(response) {
         response.setEncoding('utf8');
         response.on('end', function () {
-          console.log('PATH:' + options.path);
-          console.log('STATUS: ' + response.statusCode);
           
-          // make tracking
+          // track
+          tracker.track(index, response.statusCode);
           
-          // cycle next action
+          // next action / request
           index += 1;
           if(index > benchmark.actions.length - 1){ index = 0 };
           exports.request(benchmark, index);
+          
         });
       });
   
