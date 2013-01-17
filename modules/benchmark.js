@@ -37,6 +37,7 @@ exports.load = function(callback){
 
 // Runs the latest benchmark
 exports.run = function(done){
+  if(status !== "STOPPED"){ return; }
   
   // load
   exports.load(function(benchmark){

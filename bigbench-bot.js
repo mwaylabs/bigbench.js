@@ -1,6 +1,8 @@
-var config     = require('./config/config'),
-    storage    = require('./modules/storage'),
-    bot        = require('./modules/bot');
+var config    = require('./config/config'),
+    storage   = require('./modules/storage'),
+    events    = require('./modules/events'),
+    benchmark = require('./modules/benchmark'),
+    bot       = require('./modules/bot');
 
 
 // Setup
@@ -9,11 +11,17 @@ storage.open(function(){
   // Register
   bot.register();
   
-  // wait for benchmarks to execute
+  // Wait for Start
+  events.waitForStart(function(){
+    benchmark.run();
+  });
   
-  // setup trap with unregister
+  // Wait for Stop
+  events.waitForStop(function(){
+    benchmark.stop();
+  });
+  
 });
-
 
 // Trap Exits
 process.on('SIGINT', function(){
