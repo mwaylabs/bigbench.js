@@ -26,14 +26,17 @@ exports.find = function(id, callback){
 // Updates the bot status
 exports.status = function(status, callback){
   storage.redis.hset("bigbench_bots", exports.id(), status, callback);
+  storage.redis.publish("bigbench_bots_status", exports.id() + ":" + status);
 }
 
 // Adds the bot to the registry
 exports.register = function(callback){
+  storage.redis.publish("bigbench_bots_status", exports.id() + ":READY");
   exports.status("STOPPED", callback);
 }
 
 // Removes the bot from the registry
 exports.unregister = function(callback){
   storage.redis.hdel("bigbench_bots", exports.id(), callback);
+  storage.redis.publish("bigbench_bots_status", exports.id() + ":KILLED");
 }
