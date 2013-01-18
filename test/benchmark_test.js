@@ -83,14 +83,12 @@ describe("Benchmark", function(){
       path: '/',
       port: 80,
       method: 'GET'
-    };
-    var options = {
-      hostname: 'www.google.de',
-      path: '/?',
-      port: 80,
-      method: 'GET'
-    };
-    benchmark.validateAction(action).should.eql(options);
+    },
+    validatedOptions = benchmark.validateAction(action);
+    validatedOptions.hostname.should.eql("www.google.de");
+    validatedOptions.path.should.eql("/?");
+    validatedOptions.port.should.eql(80);
+    validatedOptions.method.should.eql("GET");
   });
   
   it("validates a GET action with query string", function(){
@@ -101,14 +99,12 @@ describe("Benchmark", function(){
       port: 80,
       method: 'GET',
       params: { q: 'southdesign de' }
-    };
-    var options = {
-      hostname: 'www.google.de',
-      path: '/?q=southdesign%20de',
-      port: 80,
-      method: 'GET'
-    };
-    benchmark.validateAction(action).should.eql(options);
+    },
+    validatedOptions = benchmark.validateAction(action);
+    validatedOptions.hostname.should.eql("www.google.de");
+    validatedOptions.path.should.eql("/?q=southdesign%20de");
+    validatedOptions.port.should.eql(80);
+    validatedOptions.method.should.eql("GET");
   });
   
 });
