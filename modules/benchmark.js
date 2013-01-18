@@ -1,6 +1,7 @@
 var storage       = require("../modules/storage"),
     bot           = require("../modules/bot"),
     events        = require("../modules/events"),
+    series        = require("../modules/series"),
     tracker       = require("../modules/tracker"),
     config        = require("../config/config"),
     color         = require('../modules/color'),
@@ -178,6 +179,7 @@ exports.setupAndStart = function(callback){
     exports.load(function(benchmark){
       exports.setupTiming(benchmark, function(ramp, timing){
         exports.startRamp(ramp);
+        series.start(benchmark);
         exports.registerStop(benchmark, callback);
       });
     });

@@ -1,6 +1,7 @@
 var config        = require('./config/config'),
     storage       = require('./modules/storage'),
     events        = require('./modules/events'),
+    series        = require('./modules/series'),
     benchmark     = require('./modules/benchmark'),
     bot           = require('./modules/bot'),
     color         = require('./modules/color'),
@@ -57,10 +58,12 @@ stop                // Stop the running benchmark\n\
 
 // Trap Exits
 process.on('SIGINT', function(){
+  series.stop();
   events.stop("ALL", function(){ process.exit(1); });
 });
 
 process.on('uncaughtException', function(err){
   console.log(color.red + err + color.reset);
+  series.stop();
   events.stop("ALL", function(){ process.exit(1); });
 });
