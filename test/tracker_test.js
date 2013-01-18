@@ -9,10 +9,11 @@ describe("Tracker", function(){
   beforeEach(function(done){ benchmark.resetData(done); });
   
   it("tracks the status code for the action", function(done){
-    var index = 0,
-        status = 200;
+    var index     = 0,
+        status    = 200,
+        duration  = 5;
     
-    tracker.track(index, status, function(){
+    tracker.track(index, status, duration, function(){
       tracker.findForAction(index, function(trackings){
         trackings[status].should.eql("1");
         tracker.find(function(trackings){

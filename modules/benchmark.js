@@ -47,9 +47,10 @@ exports.load = function(callback){
 
 // Resets the collected data but leaves the bots and benchmark intact
 exports.resetData = function(callback){
-  var keys = ["bigbench_total"];
+  var keys = ["bigbench_total", "bigbench_total_duration"];
   for (var i = 0; i < 50; i++) {
     keys.push("bigbench_action_" + i);
+    keys.push("bigbench_action_" + i + "_duration");
   };
   storage.redis.del(keys, callback);
 }
@@ -78,14 +79,19 @@ exports.run = function(done){
 exports.request = function(benchmark, index){
   if(status !== "RUNNING"){ return; }
   
-  var action  = benchmark.actions[index],
-      options = exports.validateAction(action),
-      request = http.request(options, function(response) {
+  var action   = benchmark.actions[index],
+      options  = exports.validateAction(action),
+      duration = 0,
+      started  = new Date().getTime(),
+      request  = http.request(options, function(response) {
         response.setEncoding('utf8');
         response.on('end', function () {
           
+          // duration
+          duration = new Date().getTime() - started;
+          
           // track
-          tracker.track(index, response.statusCode);
+          tracker.track(index, response.statusCode, duration);
           
           // next action / request
           index += 1;

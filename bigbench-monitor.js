@@ -45,16 +45,25 @@ storage.open(function(){
   setInterval(function(){
     if(running == 0){ return; }
     storage.redis.hgetall("bigbench_total", function(error, requests){
-      var load = "", total = "";
-      for (var status in requests){
-        if(!lastRequests[status]){ lastRequests[status] = 0 }
+      storage.redis.hgetall("bigbench_total_duration", function(error2, durations){
+        var load = "", total = "", duration = "";
+        for (var status in requests){
+          if(!lastRequests[status]){ lastRequests[status] = 0 }
         
-        total += status + ":" + parseInt(requests[status]);
-        load  += status + ":" + (parseInt(requests[status]) - parseInt(lastRequests[status])) / parseInt(loadInterval/1000) + " R/s ";
-        lastRequests[status]  = parseInt(requests[status]);
-      }
-      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_total" + color.reset + "]\t\t" + total);
-      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_load" + color.reset + "]\t\t\t" + load);
+          total     += status + ":" + numberFormat(parseInt(requests[status]));
+          duration  += status + ":" + numberFormat(parseInt(durations[status]) / parseInt(requests[status])) + " ms avg";
+          load      += status + ":" + numberFormat((parseInt(requests[status]) - parseInt(lastRequests[status])) / parseInt(loadInterval/1000)) + " R/s ";
+          lastRequests[status]  = parseInt(requests[status]);
+        }
+        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_total" + color.reset + "]\t\t" + total);
+        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_load" + color.reset + "]\t\t\t" + load);
+        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_duration" + color.reset + "]\t\t" + duration);
+      });
     });
   }, loadInterval);
 });
+
+var numberFormat = function(number){
+  var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
+  return rounded;
+}
