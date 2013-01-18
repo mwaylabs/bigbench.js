@@ -13,7 +13,7 @@ storage.open(function(){
   bot.register();
   
   // Print Ready
-  console.log(color.green + "Ready" + color.reset);
+  console.log(color.green + bot.id() + " Ready" + color.reset);
   
   // Wait for Start
   events.waitForStart(function(){

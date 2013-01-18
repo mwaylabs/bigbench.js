@@ -23,9 +23,7 @@ storage.open(function(){
   
   // Start Benchmark
   if(argument === "start"){
-    benchmark.resetData(function(){
-      events.start("ALL", function(){ process.exit(1); });
-    });
+    benchmark.setupAndStart(function(){ process.exit(1); });
   }
   
   // Stop Benchmark
@@ -55,4 +53,14 @@ stop                // Stop the running benchmark\n\
     && argument !== "stop" 
     && argument !== "--help" 
     && argument !== "-h") throw argumentError;
+});
+
+// Trap Exits
+process.on('SIGINT', function(){
+  events.stop("ALL", function(){ process.exit(1); });
+});
+
+process.on('uncaughtException', function(err){
+  console.log(color.red + err + color.reset);
+  events.stop("ALL", function(){ process.exit(1); });
 });

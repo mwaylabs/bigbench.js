@@ -61,8 +61,24 @@ storage.open(function(){
       });
     });
   }, loadInterval);
+  
+  // Progress
+  setInterval(function(){
+    storage.redis.hgetall("bigbench_timing", function(error, timing){
+      var now = new Date().getTime();
+      if(!timing || now > parseInt(timing["STOP"])) return;
+      var timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
+          progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
+      
+      if(progress > 100){ progress = 100; }
+      if(progress < 0)  { progress = 0; }
+      
+      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_progress" + color.reset + "]\t\tPROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s");
+    });
+  }, systemInterval);
 });
 
+// Round float numbers
 var numberFormat = function(number){
   var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
   return rounded;

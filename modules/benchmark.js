@@ -1,5 +1,6 @@
 var storage       = require("../modules/storage"),
     bot           = require("../modules/bot"),
+    events        = require("../modules/events"),
     tracker       = require("../modules/tracker"),
     config        = require("../config/config"),
     color         = require('../modules/color'),
@@ -47,7 +48,7 @@ exports.load = function(callback){
 
 // Resets the collected data but leaves the bots and benchmark intact
 exports.resetData = function(callback){
-  var keys = ["bigbench_total", "bigbench_total_duration"];
+  var keys = ["bigbench_total", "bigbench_total_duration", "bigbench_timing"];
   for (var i = 0; i < 50; i++) {
     keys.push("bigbench_action_" + i);
     keys.push("bigbench_action_" + i + "_duration");
@@ -55,7 +56,7 @@ exports.resetData = function(callback){
   storage.redis.del(keys, callback);
 }
 
-// Runs the latest benchmark
+// Runs the latest benchmark - used in bot
 exports.run = function(done){
   if(status !== "STOPPED"){ return; }
   
@@ -169,6 +170,67 @@ exports.saveBenchmarkFromArgument = function(callback){
   
   // save
   exports.save(benchmarkString, callback);
+}
+
+// Sets up and runs a full benchmark with ramp up, etc.
+exports.setupAndStart = function(callback){
+  exports.resetData(function(){
+    exports.load(function(benchmark){
+      exports.setupTiming(benchmark, function(ramp, timing){
+        exports.startRamp(ramp);
+        exports.registerStop(benchmark, callback);
+      });
+    });
+  });
+}
+
+// Sets up the timestamps for start, stop and ramp up
+exports.setupTiming = function(benchmark, callback){
+  var start  = new Date().getTime(),
+      ramp   = false,
+      timing = {
+        "START": start.toString(),
+        "STOP" : (start + (benchmark.duration * 1000)).toString()
+      };
+  
+  // Save Timing with or without Ramp
+  if(benchmark.rampUp){
+    ramp = {};
+    bot.all(function(bots){
+      var timer = 0,
+          delta = (benchmark.rampUp / bots.length) * 1000;
+      for(var id in bots){
+        ramp[bots[id]]    = timer;
+        timing[bots[id]]  = (start + timer).toString();
+        timer += delta;
+      }
+      storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
+    });
+  } else{
+    storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
+  }
+}
+
+// If no ramp is returned, all bots are started at the same time.
+exports.startRamp = function(ramp){
+  if(!ramp){ events.start("ALL"); }
+  else{
+    for(var id in ramp){
+      // start instance X after X ms
+      (function(theId, theRamp){
+        setTimeout(function(){ events.start(theId); }, theRamp[id]);
+      })(id, ramp);
+    }
+  }
+}
+
+// Stop after benchmark duration
+exports.registerStop = function(benchmark, callback){
+  setTimeout(function(){
+    console.log(color.green + "Done" + color.reset);
+    events.stop("ALL");
+    callback();
+  }, benchmark.duration * 1000);
 }
 
 

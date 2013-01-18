@@ -2,9 +2,7 @@ var storage           = require("../modules/storage"),
     benchmark         = require("../modules/benchmark"),
     config            = require("../config/config"),
     crypto            = require('crypto'),
-    cachedId          = undefined,
-    heartbeatInterval = 10 * 1000,
-    heartbeat         = null;
+    cachedId          = undefined;
 
 // Initially creates a SHA2 based random bot ID that is used for
 // identification. This method should be called only once during the
@@ -26,6 +24,14 @@ exports.find = function(id, callback){
   });
 }
 
+// Returns all available bot ids
+exports.all = function(callback){
+  storage.redis.hkeys("bigbench_bots", function(error, keys){
+    if(keys){ callback(keys);   }
+    else{     callback(false);  }
+  });
+}
+
 // Updates the bot status
 exports.status = function(status, callback){
   storage.redis.hset("bigbench_bots", exports.id(), status, callback);
@@ -36,16 +42,10 @@ exports.status = function(status, callback){
 exports.register = function(callback){
   storage.redis.publish("bigbench_bots_status", exports.id() + ":READY");
   exports.status("STOPPED", callback);
-  
-  // update status every X seconds
-  heartbeat = setInterval(function(){
-    storage.redis.hset("bigbench_bots", exports.id(), benchmark.status());
-  }, heartbeatInterval);
 }
 
 // Removes the bot from the registry
 exports.unregister = function(callback){
   storage.redis.hdel("bigbench_bots", exports.id(), callback);
   storage.redis.publish("bigbench_bots_status", exports.id() + ":KILLED");
-  clearInterval(heartbeat);
 }

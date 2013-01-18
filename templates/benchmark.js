@@ -1,7 +1,7 @@
 {
   duration: 120,    // duration in seconds
-  delay:    0,      // how many milliseconds should be paused between each request (slows down)
-  rampUp:   20,     // how many seconds should it take until all bots are active
+  delay:    0,      // how many milliseconds should be paused between each request (slows down) - default 0
+  rampUp:   20,     // how many seconds should it take until all bots are active                - default 0
   actions:[
     {
       name: 'Google Startpage',
