@@ -2,15 +2,14 @@ var storage       = require("../modules/storage"),
     bot           = require("../modules/bot"),
     tracker       = require("../modules/tracker"),
     config        = require("../config/config"),
+    color         = require('./modules/color'),
     crypto        = require('crypto'),
     http          = require('http'),
     agent         = new http.Agent({ maxSockets: 1 }),
     fs            = require('fs'),
     querystring   = require("querystring"),
     status        = "STOPPED",
-    stopCallback  = null,
-    blue          = '\u001b[32m',
-    reset         = '\u001b[0m';
+    stopCallback  = null;
 
 
 // Global running state
@@ -29,10 +28,10 @@ exports.status  = function(){ return status; }
 // Flushes the redis and globally saves a benchark string as a closure
 exports.save = function(benchmarkString, callback){
   var benchmarkClosure = "(function(){ return " + benchmarkString + "});";
-  storage.redis.flushall(function(){
+  exports.resetData(function(){
     storage.redis.set("bigbench_benchmark", benchmarkClosure, function(){
       storage.redis.publish("bigbench_benchmark_saved", benchmarkClosure);
-      console.log(blue + "Saved" + reset);
+      console.log(color.green + "Saved" + color.reset);
       callback();
     });
   });
@@ -46,19 +45,28 @@ exports.load = function(callback){
   });
 }
 
+// Resets the collected data but leaves the bots and benchmark intact
+exports.resetData = function(callback){
+  var keys = ["bigbench_total"];
+  for (var i = 0; i < 50; i++) {
+    keys.push("bigbench_action_" + i);
+  };
+  storage.redis.del(keys, callback);
+}
+
 // Runs the latest benchmark
 exports.run = function(done){
   if(status !== "STOPPED"){ return; }
   
   // load
   exports.load(function(benchmark){
-    
+  
     // delay
     benchmark.delay = benchmark.delay || 0;
-    
+  
     // stop
     setTimeout(exports.stop, benchmark.duration * 1000);
-    
+  
     // start
     exports.start();
     exports.request(benchmark, 0);
@@ -131,11 +139,6 @@ exports.toObject = function(objectOrFunction){
   return exports.isFunction(objectOrFunction) ? objectOrFunction() : objectOrFunction;
 }
 
-// Checks whether a string ends with a suffix like ".js"
-exports.endsWith = function(str, suffix) {
-  return str.indexOf(suffix, str.length - suffix.length) !== -1;
-}
-
 // Copies the benchmark template to the current directory for the new command
 exports.createBenchmarkFromTemplate = function(callback){
   var template = fs.createReadStream('./templates/benchmark.js'),
@@ -143,7 +146,7 @@ exports.createBenchmarkFromTemplate = function(callback){
   
   // Callback if finished writing
   template.on("end", function() {
-    console.log(blue + "Created benchmark.js" + reset);
+    console.log(color.green + "Created benchmark.js" + color.reset);
     callback();
   });
   template.pipe(copy);

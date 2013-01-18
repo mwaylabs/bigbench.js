@@ -3,14 +3,13 @@ var config         = require('./config/config'),
     events         = require('./modules/events'),
     benchmark      = require('./modules/benchmark'),
     bot            = require('./modules/bot'),
+    color          = require('./modules/color'),
     systemInterval = 5000,
     loadInterval   = 1000,
-    lastRequests   = {},
-    blue           = '\u001b[32m',
-    reset          = '\u001b[0m',
     total          = 0,
     stopped        = 0,
-    running        = 0;
+    running        = 0,
+    lastRequests   = {};
 
 
 // Setup
@@ -18,7 +17,7 @@ storage.open(function(){
   
   // Handle Events
   storage.redisForEvents.on("message", function (channel, message) {
-    console.log(new Date().getTime() + "\t["+ blue + channel + reset + "]\t\t" + message);
+    console.log(new Date().getTime() + "\t["+ color.green + channel + color.reset + "]\t\t" + message);
   });
   
   // Subscribe
@@ -38,7 +37,7 @@ storage.open(function(){
         if(bots[bot] === "STOPPED"){ stopped++; }
         if(bots[bot] === "RUNNING"){ running++; }
       }
-      console.log(new Date().getTime() + "\t[" + blue + "bigbench_bots" + reset + "]\t\t\tTOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped);
+      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_bots" + color.reset + "]\t\t\tTOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped);
     });
   }, systemInterval);
   
@@ -54,8 +53,8 @@ storage.open(function(){
         load  += status + ":" + (parseInt(requests[status]) - parseInt(lastRequests[status])) / parseInt(loadInterval/1000) + " R/s ";
         lastRequests[status]  = parseInt(requests[status]);
       }
-      console.log(new Date().getTime() + "\t[" + blue + "bigbench_total" + reset + "]\t\t" + total);
-      console.log(new Date().getTime() + "\t[" + blue + "bigbench_load" + reset + "]\t\t\t" + load);
+      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_total" + color.reset + "]\t\t" + total);
+      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_load" + color.reset + "]\t\t\t" + load);
     });
   }, loadInterval);
 });

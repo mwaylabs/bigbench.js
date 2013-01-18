@@ -3,8 +3,9 @@ var config        = require('./config/config'),
     events        = require('./modules/events'),
     benchmark     = require('./modules/benchmark'),
     bot           = require('./modules/bot'),
+    color         = require('./modules/color'),
     argument      = process.argv[2],
-    argumentError = "Missing Argument. Please supply new, start, stop, benchmark.js or a 'benchmark string'.";
+    argumentError = color.red + "ArgumentError: new, save, start or stop required" + color.reset;
 
 
 // Setup
@@ -22,7 +23,9 @@ storage.open(function(){
   
   // Start Benchmark
   if(argument === "start"){
-    events.start("ALL", function(){ process.exit(1); });
+    benchmark.resetData(function(){
+      events.start("ALL", function(){ process.exit(1); });
+    });
   }
   
   // Stop Benchmark
@@ -30,7 +33,26 @@ storage.open(function(){
     events.stop("ALL", function(){ process.exit(1); });
   }
   
+  // Help
+  if(argument === "--help" || argument === "-h"){
+    console.log("\n\
+Usage: bigbench action [arguments]\n\
+\n\
+Actions:\n\
+new                 // Create a benchmark skeleton\n\
+save benchmark.js   // Global save the benchmark\n\
+start               // Start the saved benchmark\n\
+stop                // Stop the running benchmark\n\
+    ");
+    process.exit(1);
+  }
   
   // Missing Argument
-  //throw argumentError;
+  if(!argument 
+    || argument !== "new" 
+    && argument !== "save" 
+    && argument !== "start" 
+    && argument !== "stop" 
+    && argument !== "--help" 
+    && argument !== "-h") throw argumentError;
 });

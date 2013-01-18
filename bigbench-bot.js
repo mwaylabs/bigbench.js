@@ -3,8 +3,7 @@ var config    = require('./config/config'),
     events    = require('./modules/events'),
     benchmark = require('./modules/benchmark'),
     bot       = require('./modules/bot'),
-    blue      = '\u001b[32m',
-    reset     = '\u001b[0m';
+    color     = require('./modules/color');
 
 
 // Setup
@@ -14,7 +13,7 @@ storage.open(function(){
   bot.register();
   
   // Print Ready
-  console.log(blue + "Ready" + reset);
+  console.log(color.green + "Ready" + color.reset);
   
   // Wait for Start
   events.waitForStart(function(){
@@ -35,7 +34,7 @@ process.on('SIGINT', function(){
 });
 
 process.on('uncaughtException', function(err){
-  console.log(err);
+  console.log(color.red + err + color.reset);
   bot.unregister();
   process.exit(1);
 });
