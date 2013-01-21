@@ -25,6 +25,9 @@ storage.open(function(){
   // Start Benchmark
   if(argument === "start"){
     benchmark.setupAndStart(function(){ process.exit(1); });
+    events.waitForStop(function(){
+      benchmark.teardownAndStop(function(){ process.exit(1); });
+    });
   }
   
   // Stop Benchmark
@@ -58,12 +61,10 @@ stop                // Stop the running benchmark\n\
 
 // Trap Exits
 process.on('SIGINT', function(){
-  series.stop();
-  events.stop("ALL", function(){ process.exit(1); });
+  benchmark.teardownAndStop(function(){ process.exit(1); });
 });
 
 process.on('uncaughtException', function(err){
   console.log(color.red + err + color.reset);
-  series.stop();
-  events.stop("ALL", function(){ process.exit(1); });
+  benchmark.teardownAndStop(function(){ process.exit(1); });
 });

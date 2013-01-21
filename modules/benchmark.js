@@ -11,6 +11,7 @@ var storage       = require("../modules/storage"),
     fs            = require('fs'),
     querystring   = require("querystring"),
     status        = "STOPPED",
+    stopTimeout   = null,
     stopCallback  = null;
 
 
@@ -23,6 +24,7 @@ exports.start   = function(){
 exports.stop    = function(){
   status = "STOPPED";
   bot.status(status);
+  if(stopTimeout){  clearTimeout(stopTimeout); }
   if(stopCallback){ stopCallback(); }
 }
 exports.status  = function(){ return status; }
@@ -76,7 +78,7 @@ exports.run = function(done){
     benchmark.delay = benchmark.delay || 0;
   
     // stop
-    setTimeout(exports.stop, benchmark.duration * 1000);
+    stopTimeout = setTimeout(exports.stop, benchmark.duration * 1000);
   
     // start
     exports.start();
@@ -186,6 +188,7 @@ exports.setupAndStart = function(callback){
   exports.resetData(function(){
     exports.load(function(benchmark){
       exports.setupTiming(benchmark, function(ramp, timing){
+        storage.redis.set("bigbench_status", "RUNNING");
         exports.startRamp(ramp);
         series.start(benchmark);
         exports.registerStop(benchmark, callback);
@@ -236,11 +239,16 @@ exports.startRamp = function(ramp){
 
 // Stop after benchmark duration
 exports.registerStop = function(benchmark, callback){
-  setTimeout(function(){
-    console.log(color.green + "Done" + color.reset);
-    events.stop("ALL");
-    callback();
-  }, benchmark.duration * 1000);
+  setTimeout(function(){ exports.teardownAndStop(callback); }, benchmark.duration * 1000);
+}
+
+// Shuts down a benchmark from the controlling side / not the bot side
+exports.teardownAndStop = function(callback){
+  events.stop("ALL");
+  series.stop();
+  console.log(color.green + "Done" + color.reset);
+  storage.redis.del("bigbench_status");
+  callback();
 }
 
 

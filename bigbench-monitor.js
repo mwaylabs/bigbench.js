@@ -4,6 +4,7 @@ var config         = require('./config/config'),
     benchmark      = require('./modules/benchmark'),
     bot            = require('./modules/bot'),
     color          = require('./modules/color'),
+    isRunning      = false,
     systemInterval = 5000,
     loadInterval   = 1000,
     total          = 0,
@@ -14,6 +15,13 @@ var config         = require('./config/config'),
 
 // Setup
 storage.open(function(){
+  
+  // Status
+  setInterval(function(){
+    storage.redis.get("bigbench_status", function(err, status){
+      isRunning = (status === "RUNNING");
+    });
+  }, 1000);
   
   // Handle Events
   storage.redisForEvents.on("message", function (channel, message) {
@@ -45,10 +53,10 @@ storage.open(function(){
   
   // Progress
   setInterval(function(){
+    if(!isRunning) return;
     storage.redis.hgetall("bigbench_timing", function(error, timing){
-      var now = new Date().getTime();
-      if(!timing || now > parseInt(timing["STOP"])) return;
-      var timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
+      var now      = new Date().getTime(),
+          timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
           progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
       
       if(progress > 100){ progress = 100; }

@@ -20,51 +20,56 @@ exports.stop = function(){
 
 // Captures a current value
 exports.capture = function(benchmark, time, callback){
-  var keys  = ["bigbench_total", "bigbench_total_duration"],
+  var keys        = exports.captureKeys(benchmark),
       multiGet    = storage.redis.multi(),
       multiStore  = storage.redis.multi();
   
-  for (var i = 0; i < benchmark.actions.length; i++) { keys.push("bigbench_action_" + i); keys.push("bigbench_action_" + i + "_duration"); };
+  // Multi-Get All keys
   for (var index in keys) { multiGet.hgetall(keys[index]); };
-  
-  // get current values
   multiGet.exec(function(error, replies){
     var current = {};
     
-    // for each key - bigbench_total, bigbench_action_0, ..
+    // Traverse Keys - bigbench_total, bigbench_action_0, ..
     for(var index in keys){
       var name        = keys[index],
           isDuration  = (name.indexOf("_duration") !== -1);
+      
+      // Clone Reply for Save Manipulation
       current[name] = exports.clone(replies[index]);
       
-      // find divider index for average durations if is duration
-      if(isDuration){
-        var nameDivider   = name.replace("_duration", ""),
-            indexDivider  = keys.indexOf(nameDivider);
-      }
-      
-      // for each status - 200: 34, 404: 3, 500: 1
+      // Traverse Status - 200: 34, 404: 3, 500: 1
       for(var status in replies[index]){
         var lastValue = 0;
         try{ lastValue = last[index][status]; } catch(e){};
         current[name][status] = replies[index][status] - lastValue;
         
-        // divide duration ms / request amount for averages if duration key
+        // Calculate Average Duration - 600 ms / 1054 R/s
         if(isDuration){
-          var lastDivider = 0;
+          var lastDivider = 0,
+              nameDivider = name.replace("_duration", "");
           try{ lastDivider = current[nameDivider][status]; } catch(e){};
           current[name][status] = exports.roundNumber(current[name][status] / lastDivider) || 0;
         }
       }
       
-      // publish results
+      // Append & Publish Results to Redis
       var jsonSnapshot = JSON.stringify(current[name]);
       multiStore.rpush(name + "_series", jsonSnapshot);
       multiStore.publish(name + "_series", jsonSnapshot);
     };
-    last = replies;
     multiStore.exec(callback);
+    last = replies;
   });
+}
+
+// Returns an array of all keys that are needed for a capture
+exports.captureKeys = function(benchmark){
+  var keys  = ["bigbench_total", "bigbench_total_duration"];
+  for (var i = 0; i < benchmark.actions.length; i++) {
+    keys.push("bigbench_action_" + i);
+    keys.push("bigbench_action_" + i + "_duration");
+  };
+  return keys;
 }
 
 // make a real copy of a javascript object
