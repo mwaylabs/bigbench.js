@@ -2,7 +2,11 @@
   "name": "BigBench",
   "description": "Distributed Benchmarking",
   "version": "0.0.1",
-  "private": false,
+  "bin": {
+    "bigbench.js"         : "bin/bigbench.js",
+    "bigbench-bot.js"     : "bin/bigbench-bot.js",
+    "bigbench-monitor.js" : "bin/bigbench-monitor.js"
+  },
   "dependencies": {
     "jake"      : "0.5.5",
     "redis"     : "0.8.1",

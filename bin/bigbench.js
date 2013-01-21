@@ -1,10 +1,12 @@
-var config        = require('./config/config'),
-    storage       = require('./modules/storage'),
-    events        = require('./modules/events'),
-    series        = require('./modules/series'),
-    benchmark     = require('./modules/benchmark'),
-    bot           = require('./modules/bot'),
-    color         = require('./modules/color'),
+#!/usr/bin/env node
+
+var config        = require('../config/config'),
+    storage       = require('../modules/storage'),
+    events        = require('../modules/events'),
+    series        = require('../modules/series'),
+    benchmark     = require('../modules/benchmark'),
+    bot           = require('../modules/bot'),
+    color         = require('../modules/color'),
     argument      = process.argv[2],
     argumentError = color.red + "ArgumentError: new, save, start or stop required" + color.reset;
 

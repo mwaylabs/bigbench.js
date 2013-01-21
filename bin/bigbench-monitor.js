@@ -1,9 +1,11 @@
-var config         = require('./config/config'),
-    storage        = require('./modules/storage'),
-    events         = require('./modules/events'),
-    benchmark      = require('./modules/benchmark'),
-    bot            = require('./modules/bot'),
-    color          = require('./modules/color'),
+#!/usr/bin/env node
+
+var config         = require('../config/config'),
+    storage        = require('../modules/storage'),
+    events         = require('../modules/events'),
+    benchmark      = require('../modules/benchmark'),
+    bot            = require('../modules/bot'),
+    color          = require('../modules/color'),
     isRunning      = false,
     systemInterval = 5000,
     loadInterval   = 1000,

@@ -1,10 +1,11 @@
-var config    = require('./config/config'),
-    storage   = require('./modules/storage'),
-    events    = require('./modules/events'),
-    benchmark = require('./modules/benchmark'),
-    bot       = require('./modules/bot'),
-    color     = require('./modules/color');
+#!/usr/bin/env node
 
+var config    = require('../config/config'),
+    storage   = require('../modules/storage'),
+    events    = require('../modules/events'),
+    benchmark = require('../modules/benchmark'),
+    bot       = require('../modules/bot'),
+    color     = require('../modules/color');
 
 // Setup
 storage.open(function(){

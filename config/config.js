@@ -32,5 +32,10 @@ var environments = {
   "production":   production
 };
 
-// returns the config depending on the NODE_ENV
-module.exports = environments[process.env.NODE_ENV || "production"];
+// Loads a config.js from the current working directory or the default config from the environments
+var config;
+try{      config = require(process.cwd() + "/config.js");              }
+catch(e){ config = environments[process.env.NODE_ENV || "test"]; }
+
+// returns the config
+module.exports = config;
