@@ -17,7 +17,7 @@ storage.open(function(){
   
   // Handle Events
   storage.redisForEvents.on("message", function (channel, message) {
-    console.log(new Date().getTime() + "\t["+ color.green + channel + color.reset + "]\t\t" + message);
+    printLine(channel, message);
   });
   
   // Subscribe
@@ -25,7 +25,9 @@ storage.open(function(){
     "bigbench_bots_start", 
     "bigbench_bots_stop", 
     "bigbench_bots_status", 
-    "bigbench_benchmark_saved"
+    "bigbench_benchmark_saved",
+    "bigbench_total_series",
+    "bigbench_total_duration_series"
   );
   
   // System
@@ -37,30 +39,9 @@ storage.open(function(){
         if(bots[bot] === "STOPPED"){ stopped++; }
         if(bots[bot] === "RUNNING"){ running++; }
       }
-      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_bots" + color.reset + "]\t\t\tTOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped);
+      printLine("bigbench_bots", "TOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped);
     });
   }, systemInterval);
-  
-  // Load
-  setInterval(function(){
-    if(running == 0){ return; }
-    storage.redis.hgetall("bigbench_total", function(error, requests){
-      storage.redis.hgetall("bigbench_total_duration", function(error2, durations){
-        var load = "", total = "", duration = "";
-        for (var status in requests){
-          if(!lastRequests[status]){ lastRequests[status] = 0 }
-        
-          total     += status + ":" + numberFormat(parseInt(requests[status]));
-          duration  += status + ":" + numberFormat(parseInt(durations[status]) / parseInt(requests[status])) + " ms avg";
-          load      += status + ":" + numberFormat((parseInt(requests[status]) - parseInt(lastRequests[status])) / parseInt(loadInterval/1000)) + " R/s ";
-          lastRequests[status]  = parseInt(requests[status]);
-        }
-        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_total" + color.reset + "]\t\t" + total);
-        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_load" + color.reset + "]\t\t\t" + load);
-        console.log(new Date().getTime() + "\t[" + color.green + "bigbench_duration" + color.reset + "]\t\t" + duration);
-      });
-    });
-  }, loadInterval);
   
   // Progress
   setInterval(function(){
@@ -73,7 +54,7 @@ storage.open(function(){
       if(progress > 100){ progress = 100; }
       if(progress < 0)  { progress = 0; }
       
-      console.log(new Date().getTime() + "\t[" + color.green + "bigbench_progress" + color.reset + "]\t\tPROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s");
+      printLine("bigbench_progress", "PROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s");
     });
   }, systemInterval);
 });
@@ -82,4 +63,19 @@ storage.open(function(){
 var numberFormat = function(number){
   var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
   return rounded;
+}
+
+// Prints an output line with date and format
+var printLine = function(label, content){
+  var time    = new Date().getTime(),
+      longest = 32,
+      fillup  = longest - label.length,
+      output  = "";
+      
+  output += time;
+  output += "    [" + color.green + label + color.reset + "]";
+  for (var i=0; i < fillup; i++) { output += " " };
+  output += content;
+  
+  console.log(output);
 }

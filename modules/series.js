@@ -20,68 +20,87 @@ exports.stop = function(){
 
 // Captures a current value
 exports.capture = function(benchmark, time, callback){
-  var keys  = ["bigbench_total"],
+  var keys  = ["bigbench_total", "bigbench_total_duration"],
       multiGet    = storage.redis.multi(),
       multiStore  = storage.redis.multi();
   
-  for (var i = 0; i < benchmark.actions.length; i++) { keys.push("bigbench_action_" + i); };
+  for (var i = 0; i < benchmark.actions.length; i++) { keys.push("bigbench_action_" + i); keys.push("bigbench_action_" + i + "_duration"); };
   for (var index in keys) { multiGet.hgetall(keys[index]); };
   
   // get current values
   multiGet.exec(function(error, replies){
     var current = {};
+    
+    // for each key - bigbench_total, bigbench_action_0, ..
     for(var index in keys){
-      current[keys[index]] = exports.clone(replies[index]);
+      var name        = keys[index],
+          isDuration  = (name.indexOf("_duration") !== -1);
+      current[name] = exports.clone(replies[index]);
+      
+      // find divider index for average durations if is duration
+      if(isDuration){
+        var nameDivider   = name.replace("_duration", ""),
+            indexDivider  = keys.indexOf(nameDivider);
+      }
+      
+      // for each status - 200: 34, 404: 3, 500: 1
       for(var status in replies[index]){
         var lastValue = 0;
-        try{ lastValue = parseInt(last[index][status]) } catch(e){};
-        current[keys[index]][status] = (replies[index][status] - lastValue).toString();
+        try{ lastValue = last[index][status]; } catch(e){};
+        current[name][status] = replies[index][status] - lastValue;
+        
+        // divide duration ms / request amount for averages if duration key
+        if(isDuration){
+          var lastDivider = 0;
+          try{ lastDivider = current[nameDivider][status]; } catch(e){};
+          current[name][status] = exports.roundNumber(current[name][status] / lastDivider) || 0;
+        }
       }
-      if(current[keys[index]]){
-        multiStore.hmset(keys[index] + "_at_" + time, current[keys[index]]);
-        // also publish as stringified JSON with time and all values
-      }
+      
+      // publish results
+      var jsonSnapshot = JSON.stringify(current[name]);
+      multiStore.rpush(name + "_series", jsonSnapshot);
+      multiStore.publish(name + "_series", jsonSnapshot);
     };
     last = replies;
-    //console.log(current);
-    
-    multiStore.exec(function(){
-      callback();
-    });
+    multiStore.exec(callback);
   });
-  
-  // write them, publish them and update them to the old ones
 }
 
 // make a real copy of a javascript object
 exports.clone = function(obj){
-    // Handle the 3 simple types, and null or undefined
-    if (null == obj || "object" != typeof obj) return obj;
+  if (null == obj || "object" != typeof obj) return obj;
+  
+  // Handle Date
+  if (obj instanceof Date) {
+    var copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  }
 
-    // Handle Date
-    if (obj instanceof Date) {
-        var copy = new Date();
-        copy.setTime(obj.getTime());
-        return copy;
+  // Handle Array
+  if (obj instanceof Array) {
+    var copy = [];
+    for (var i = 0, len = obj.length; i < len; i++) {
+      copy[i] = exports.clone(obj[i]);
     }
+    return copy;
+  }
 
-    // Handle Array
-    if (obj instanceof Array) {
-        var copy = [];
-        for (var i = 0, len = obj.length; i < len; i++) {
-            copy[i] = exports.clone(obj[i]);
-        }
-        return copy;
+  // Handle Object
+  if (obj instanceof Object) {
+    var copy = {};
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) copy[attr] = exports.clone(obj[attr]);
     }
+    return copy;
+  }
+  
+  throw new Error("Couldn't clone the object");
+}
 
-    // Handle Object
-    if (obj instanceof Object) {
-        var copy = {};
-        for (var attr in obj) {
-            if (obj.hasOwnProperty(attr)) copy[attr] = exports.clone(obj[attr]);
-        }
-        return copy;
-    }
-
-    throw new Error("Unable to copy obj! Its type isn't supported.");
+// Rounds the numbers with precision of two
+exports.roundNumber = function(number){
+  var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
+  return rounded;
 }

@@ -49,10 +49,18 @@ exports.load = function(callback){
 
 // Resets the collected data but leaves the bots and benchmark intact
 exports.resetData = function(callback){
-  var keys = ["bigbench_total", "bigbench_total_duration", "bigbench_timing"];
+  var keys = [
+    "bigbench_total",
+    "bigbench_total_duration", 
+    "bigbench_timing", 
+    "bigbench_total_series", 
+    "bigbench_total_duration_series"
+  ];
   for (var i = 0; i < 50; i++) {
     keys.push("bigbench_action_" + i);
     keys.push("bigbench_action_" + i + "_duration");
+    keys.push("bigbench_action_" + i + "_series");
+    keys.push("bigbench_action_" + i + "_duration_series");
   };
   storage.redis.del(keys, callback);
 }
