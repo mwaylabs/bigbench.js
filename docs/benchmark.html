@@ -43,7 +43,8 @@
     <span class="s2">&quot;bigbench_total_duration&quot;</span><span class="p">,</span> 
     <span class="s2">&quot;bigbench_timing&quot;</span><span class="p">,</span> 
     <span class="s2">&quot;bigbench_total_series&quot;</span><span class="p">,</span> 
-    <span class="s2">&quot;bigbench_total_duration_series&quot;</span>
+    <span class="s2">&quot;bigbench_total_duration_series&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bigbench_statistics&quot;</span>
   <span class="p">];</span>
   <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="o">&lt;</span> <span class="mi">50</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
     <span class="nx">keys</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s2">&quot;bigbench_action_&quot;</span> <span class="o">+</span> <span class="nx">i</span><span class="p">);</span>
@@ -164,7 +165,7 @@ is read and then saved to the benchmark</p>             </td>             <td cl
   <span class="nx">series</span><span class="p">.</span><span class="nx">stop</span><span class="p">();</span>
   <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">color</span><span class="p">.</span><span class="nx">green</span> <span class="o">+</span> <span class="s2">&quot;Done&quot;</span> <span class="o">+</span> <span class="nx">color</span><span class="p">.</span><span class="nx">reset</span><span class="p">);</span>
   <span class="nx">storage</span><span class="p">.</span><span class="nx">redis</span><span class="p">.</span><span class="nx">del</span><span class="p">(</span><span class="s2">&quot;bigbench_status&quot;</span><span class="p">);</span>
-  <span class="nx">callback</span><span class="p">();</span>
+  <span class="nx">series</span><span class="p">.</span><span class="nx">statistics</span><span class="p">(</span><span class="nx">callback</span><span class="p">);</span>
 <span class="p">}</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

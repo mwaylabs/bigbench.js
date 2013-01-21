@@ -1,5 +1,5 @@
 {
-  "name": "BigBench",
+  "name": "bigbench",
   "description": "Distributed Benchmarking",
   "version": "0.0.1",
   "bin": {

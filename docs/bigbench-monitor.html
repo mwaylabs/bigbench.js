@@ -27,7 +27,8 @@
     <span class="s2">&quot;bigbench_bots_status&quot;</span><span class="p">,</span> 
     <span class="s2">&quot;bigbench_benchmark_saved&quot;</span><span class="p">,</span>
     <span class="s2">&quot;bigbench_total_series&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;bigbench_total_duration_series&quot;</span>
+    <span class="s2">&quot;bigbench_total_duration_series&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;bigbench_statistics&quot;</span>
   <span class="p">);</span>
   </pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>System</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">setInterval</span><span class="p">(</span><span class="kd">function</span><span class="p">(){</span>
     <span class="nx">storage</span><span class="p">.</span><span class="nx">redis</span><span class="p">.</span><span class="nx">hgetall</span><span class="p">(</span><span class="s2">&quot;bigbench_bots&quot;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">error</span><span class="p">,</span> <span class="nx">bots</span><span class="p">){</span>
