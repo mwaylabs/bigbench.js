@@ -1,15 +1,22 @@
 # BigBench
+BigBench is a distributed benchmarking system based on node.js. It uses bots that can be spread across multiple machines to attack multiple web site actions and communicates over a redis store. It runs and calculates all data in real-time, regardless of the amount of bots. The concurrency of the requests is controlled by the amount of bots used. For multiple concurrent requests on a single machine, simply start multiple bots.
 
-Todo
+* Fully Distributed Load-Testing
+* Real-Time Performance Data
+* Dynamic Parameters Support
+* Linear Increase of Bots through RampUp
+* Request Throttling through Delay Time
+
+If too many requests are generated with a single bot, the `delay` parameter allows to slow down the request rate. It simply waits `delay` milliseconds before the next request is made.
+
+The `rampUp` parameter allows to add more bots during the test. All bots have to be online when the test is started. It linearly starts all bots during the specified time period.
 
 ## Install
-
 To install bigbench run:
 
     sudo npm install bigbench -g
 
 ## Configuration
-
 By default bigbench tries to connect to a redis on the localhost on port 6379. You can supply a custom
 connection by creating a file named `config.js` in the same directory then bigbench is running in (pwd):
 
@@ -24,12 +31,10 @@ connection by creating a file named `config.js` in the same directory then bigbe
 The config will automatically be loaded if it exists.
 
 ## Create and Save a Benchmark
-
 A benchmark consists of a few global variables like `duration` and `rampUp` time and the actions that should be tested. Each
 action is a URL that is requested during the test.
 
 ### Scaffolding a Benchmark
-
 For an initial benchmark simply run:
 
     bigbench.js new
@@ -45,7 +50,6 @@ After you started the amount of bots you want to test with you can initiate the 
 and watch the progress with the `bigbench-monitor.js`
 
 ## Sample Benchmark
-
     {
       duration: 120,    // duration in seconds
       delay:    0,      // how many milliseconds should be paused between each request (slows down) - default 0
@@ -98,32 +102,37 @@ and watch the progress with the `bigbench-monitor.js`
     }
 
 ## Starting a Bot
-
 To start a bot simply run:
 
     bigbench-bot.js
 
 ## Starting the Monitor
-
 To follow a test watch the monitor. It will show everything you need:
 
     bigbench-monitor.js
 
-## Starting/Stopping a Benchmark
-
+## Starting and Stopping a Benchmark
 After saving it you can start and stop it by calling:
 
     bigbench.js start
     bigbench.js stop
 
-## Testing
+## Event System
+The whole system publishes updates through Redis' Pub/Sub. You can subscribe to the following channels:
+* **bigbench_bots_status**: Retrieve status updates of the bots like RUNNING or STOPPED
+* **bigbench_benchmark_saved**: Retrieve the latest saved benchmark
+* **bigbench_total_series**: Every second the current total amount of requests per second is published
+* **bigbench_total_duration_series**: Every second the current total average duration of the requests is published
+* **bigbench_action_<0..n>_series**: Every second the current action <0..n> amount of requests per second is published
+* **bigbench_action_<0…n>_duration_series**: Every second the current action <0..n> average duration of the requests is published
+* **bigbench_statistics**: After a run, the statistics for that run are published
 
+## Testing
 Run all tests with:
 
     NODE_ENV=test mocha
 
 ## Contributing
-
 1. Fork it
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
