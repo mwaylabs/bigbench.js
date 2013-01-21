@@ -109,3 +109,81 @@ exports.roundNumber = function(number){
   var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
   return rounded;
 }
+
+// Calculates the default statistics after a run
+exports.statistics = function(callback){
+  var multi       = storage.redis.multi(),
+      data        = [{ name: "TOTAL", identifier: "total" }],
+      statistics  = {};
+  
+  // Load Actions
+  benchmark.load(function(benchmark){
+    for(var index in benchmark.actions){ data.push({ name: "ACTION_" + index, identifier: "action_" + index }); }
+    for(var index in data){
+      multi.lrange("bigbench_" + data[index].identifier + "_series", 0, -1);
+      multi.lrange("bigbench_" + data[index].identifier + "_duration_series", 0, -1);
+    }
+    
+    // Run for Total and all Actions
+    multi.exec(function(error, results){
+      for(var index in data){
+        var resultIndex = 2 * index,
+            requests    = exports.statusArray(results[resultIndex]),
+            durations   = exports.statusArray(results[resultIndex + 1]);
+        
+        statistics[data[index].name] = {
+          "REQUESTS_PER_SECOND"  : exports.calculateStatistics(requests),
+          "DURATIONS_PER_SECOND" : exports.calculateStatistics(durations)
+        };
+      }
+      
+      // Publish and Save Statistics JSON
+      var statisticsJSON = JSON.stringify(statistics, undefined, 4);
+      storage.redis.set("bigbench_statistics", statisticsJSON);
+      storage.redis.publish("bigbench_statistics", statisticsJSON);
+      callback(statistics);
+    });
+  });
+}
+
+// Parses the time series and converts it into an object with statuses and an array
+exports.statusArray = function(captures){
+  var statusArray = {};
+  for (var i=0; i < captures.length; i++) {
+    var capture = JSON.parse(captures[i]);
+    for(var status in capture){
+      if(!statusArray[status]) statusArray[status] = [];
+      statusArray[status].push(parseFloat(capture[status]));
+    }
+  };
+  return statusArray;
+};
+
+// Calculates Min Max and Average for a status array
+exports.calculateStatistics = function(statusArray){
+  var calculation = {};
+  for(var status in statusArray){
+    calculation[status] = {
+      AVG: exports.roundNumber(exports.avg(statusArray[status])),
+      MAX: exports.roundNumber(exports.max(statusArray[status])),
+      MIN: exports.roundNumber(exports.min(statusArray[status]))
+    };
+  }
+  return calculation;
+}
+
+// Calculates the max of an array
+exports.max = function(array){
+  return Math.max.apply(Math, array);
+}
+
+// Calculates the min of an array
+exports.min = function(array){
+  return Math.min.apply(Math, array);
+}
+
+// Calculates the average of an array
+exports.avg = function(array){
+  return eval(array.join('+')) / array.length;
+}
+

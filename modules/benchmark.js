@@ -56,7 +56,8 @@ exports.resetData = function(callback){
     "bigbench_total_duration", 
     "bigbench_timing", 
     "bigbench_total_series", 
-    "bigbench_total_duration_series"
+    "bigbench_total_duration_series",
+    "bigbench_statistics"
   ];
   for (var i = 0; i < 50; i++) {
     keys.push("bigbench_action_" + i);
@@ -248,7 +249,7 @@ exports.teardownAndStop = function(callback){
   series.stop();
   console.log(color.green + "Done" + color.reset);
   storage.redis.del("bigbench_status");
-  callback();
+  series.statistics(callback);
 }
 
 
