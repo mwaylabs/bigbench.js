@@ -1,11 +1,13 @@
 # BigBench
-BigBench is a distributed benchmarking system based on node.js. It uses bots that can be spread across multiple machines to attack multiple web site actions and communicates over a redis store. It runs and calculates all data in real-time, regardless of the amount of bots. The concurrency of the requests is controlled by the amount of bots used. For multiple concurrent requests on a single machine, simply start multiple bots.
+BigBench is a distributed benchmarking system based on node.js. It uses bots that can be spread across multiple machines to attack multiple web site actions and communicates over a redis store. It runs and calculates all data in real-time, regardless of the amount of bots.
 
 * Fully Distributed Load-Testing
 * Real-Time Performance Data
 * Dynamic Parameters Support
 * Linear Increase of Bots through RampUp
 * Request Throttling through Delay Time
+
+The concurrency of the requests is controlled by two things: The `concurrency` parameter and the amount of bots. The parameter describes how many concurrent requests each bot sends. If the parameter is set to 1, it sends a request, waits for the response and then sends the next. If it is set to 2, it sends 2 requests and initiates the next request after the first responded for each requests individually.
 
 If too many requests are generated with a single bot, the `delay` parameter allows to slow down the request rate. It simply waits `delay` milliseconds before the next request is made.
 
@@ -51,9 +53,10 @@ and watch the progress with the `bigbench-monitor.js`
 
 ## Sample Benchmark
     {
-      duration: 120,    // duration in seconds
-      delay:    0,      // how many milliseconds should be paused between each request (slows down) - default 0
-      rampUp:   20,     // how many seconds should it take until all bots are active                - default 0
+      duration:     120,    // duration in seconds                                                      - default 60
+      concurrency:  1,      // number of concurrent requests                                            - default 1
+      delay:        0,      // how many milliseconds should be paused between each request (slows down) - default 0
+      rampUp:       20,     // how many seconds should it take until all bots are active                - default 0
       actions:[
         {
           name: 'Google Startpage',

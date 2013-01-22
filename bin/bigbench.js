@@ -8,7 +8,6 @@ var config        = require('../config/config'),
     bot           = require('../modules/bot'),
     color         = require('../modules/color'),
     argument      = process.argv[2],
-    exiting       = false,
     argumentError = color.red + "ArgumentError: new, save, start or stop required" + color.reset;
 
 
@@ -29,8 +28,7 @@ storage.open(function(){
   if(argument === "start"){
     benchmark.setupAndStart(function(){ process.exit(1); });
     events.waitForStop(function(){
-      if(exiting) return;
-      exiting = true;
+      if(benchmark.exiting()) return;
       benchmark.teardownAndStop(function(){ process.exit(1); });
     });
   }
@@ -66,12 +64,10 @@ stop                // Stop the running benchmark\n\
 
 // Trap Exits
 process.on('SIGINT', function(){
-  exiting = true;
   benchmark.teardownAndStop(function(){ process.exit(1); });
 });
 
 process.on('uncaughtException', function(err){
-  exiting = true;
   console.log(color.red + err + color.reset);
   benchmark.teardownAndStop(function(){ process.exit(1); });
 });

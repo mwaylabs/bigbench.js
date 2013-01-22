@@ -11,9 +11,9 @@ var storage       = require("../modules/storage"),
     fs            = require('fs'),
     querystring   = require("querystring"),
     status        = "STOPPED",
+    exiting       = false,
     stopTimeout   = null,
     stopCallback  = null;
-
 
 // Global running state
 exports.start   = function(){
@@ -28,6 +28,10 @@ exports.stop    = function(){
   if(stopCallback){ stopCallback(); }
 }
 exports.status  = function(){ return status; }
+exports.exiting = function(yesOrNo){
+  if(yesOrNo) exiting = yesOrNo;
+  return exiting;
+}
 
 // Flushes the redis and globally saves a benchark string as a closure
 exports.save = function(benchmarkString, callback){
@@ -75,15 +79,19 @@ exports.run = function(done){
   // load
   exports.load(function(benchmark){
   
-    // delay
-    benchmark.delay = benchmark.delay || 0;
+    // options
+    benchmark.duration    = benchmark.duration    || 60;
+    benchmark.delay       = benchmark.delay       || 0;
+    benchmark.concurrency = benchmark.concurrency || 1;
+    if(!benchmark.actions || benchmark.actions.length <= 0) throw "Please add at least one action...";
   
     // stop
     stopTimeout = setTimeout(exports.stop, benchmark.duration * 1000);
   
-    // start
+    // start concurrent
     exports.start();
-    exports.request(benchmark, 0);
+    for (var i = 0; i < benchmark.concurrency; i++) { exports.request(benchmark, 0); };
+    
     stopCallback = done;
   });
 }
@@ -245,14 +253,10 @@ exports.registerStop = function(benchmark, callback){
 
 // Shuts down a benchmark from the controlling side / not the bot side
 exports.teardownAndStop = function(callback){
+  exiting = true;
   events.stop("ALL");
   series.stop();
   console.log(color.green + "Done" + color.reset);
   storage.redis.del("bigbench_status");
   series.statistics(callback);
 }
-
-
-
-
-
