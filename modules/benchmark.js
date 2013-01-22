@@ -9,6 +9,7 @@ var storage       = require("../modules/storage"),
     http          = require('http'),
     agent         = new http.Agent({ maxSockets: 1 }),
     fs            = require('fs'),
+    util          = require('util'),
     querystring   = require("querystring"),
     status        = "STOPPED",
     exiting       = false,
@@ -168,15 +169,22 @@ exports.toObject = function(objectOrFunction){
 
 // Copies the benchmark template to the current directory for the new command
 exports.createBenchmarkFromTemplate = function(callback){
-  var template = fs.createReadStream('./templates/benchmark.js'),
-      copy     = fs.createWriteStream('benchmark.js');
+  var template  = fs.createReadStream('./templates/benchmark.js'),
+      template2 = fs.createReadStream('./templates/config.js'),
+      copy      = fs.createWriteStream('benchmark.js'),
+      copy2     = fs.createWriteStream('config.js');
   
-  // Callback if finished writing
-  template.on("end", function() {
+  template.on('close', function(){
     console.log(color.green + "Created benchmark.js" + color.reset);
+  })
+  
+  template2.on('close', function(){
+    console.log(color.green + "Created config.js" + color.reset);
     callback();
   });
+  
   template.pipe(copy);
+  template2.pipe(copy2);
 }
 
 // Checks if the supplied argument is a file or a string. If it is a file it
