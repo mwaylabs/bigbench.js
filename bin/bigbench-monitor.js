@@ -38,7 +38,8 @@ storage.open(function(){
     "bigbench_benchmark_saved",
     "bigbench_total_series",
     "bigbench_total_duration_series",
-    "bigbench_statistics"
+    "bigbench_statistics",
+    "bigbench_timing"
   );
   
   // System

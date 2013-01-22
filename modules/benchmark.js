@@ -235,9 +235,11 @@ exports.setupTiming = function(benchmark, callback){
         timer += delta;
       }
       storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
+      storage.redis.publish("bigbench_timing", JSON.stringify(timing));
     });
   } else{
     storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
+    storage.redis.publish("bigbench_timing", JSON.stringify(timing));
   }
 }
 
