@@ -169,8 +169,8 @@ exports.toObject = function(objectOrFunction){
 
 // Copies the benchmark template to the current directory for the new command
 exports.createBenchmarkFromTemplate = function(callback){
-  var template  = fs.createReadStream('./templates/benchmark.js'),
-      template2 = fs.createReadStream('./templates/config.js'),
+  var template  = fs.createReadStream(__dirname + '/../templates/benchmark.js'),
+      template2 = fs.createReadStream(__dirname + '/../templates/config.js'),
       copy      = fs.createWriteStream('benchmark.js'),
       copy2     = fs.createWriteStream('config.js');
   
