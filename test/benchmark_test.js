@@ -126,12 +126,14 @@ describe("Benchmark", function(){
       ]
     };
     
-    benchmark.setupTiming(benchmarkNoRamp, function(ramp){
-      ramp.should.eql(false);
-      storage.redis.hgetall("bigbench_timing", function(error, timing){
-        parseInt(timing["START"]).should.be.below(new Date().getTime() + 1);
-        parseInt(timing["STOP"]).should.be.above(new Date().getTime());
-        done();
+    storage.redis.hset("bigbench_bots", "aaa", "STOPPED", function(){
+      benchmark.setupTiming(benchmarkNoRamp, function(ramp){
+        ramp.should.eql(false);
+        storage.redis.hgetall("bigbench_timing", function(error, timing){
+          parseInt(timing["START"]).should.be.below(new Date().getTime() + 1);
+          parseInt(timing["STOP"]).should.be.above(new Date().getTime());
+          done();
+        });
       });
     });
   });

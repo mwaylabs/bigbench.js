@@ -192,7 +192,7 @@ exports.createBenchmarkFromTemplate = function(callback){
 // Checks if the supplied argument is a file or a string. If it is a file it
 // is read and then saved to the benchmark
 exports.saveBenchmarkFromArgument = function(callback){
-  if(!process.argv[3]){ throw "Please supply a benchmark file "};
+  if(!process.argv[3]){ throw "Please supply a benchmark file..."};
   var benchmarkString = fs.readFileSync(process.argv[3]);
   
   // throws an error if benchmark is invalid
@@ -226,9 +226,10 @@ exports.setupTiming = function(benchmark, callback){
       };
   
   // Save Timing with or without Ramp
-  if(benchmark.rampUp){
-    ramp = {};
-    bot.all(function(bots){
+  bot.all(function(bots){
+    if(bots.length <= 0) throw "Please start a bot first..."
+    if(benchmark.rampUp){
+      ramp = {};
       var timer = 0,
           delta = (benchmark.rampUp / bots.length) * 1000;
       for(var id in bots){
@@ -238,11 +239,11 @@ exports.setupTiming = function(benchmark, callback){
       }
       storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
       storage.redis.publish("bigbench_timing", JSON.stringify(timing));
-    });
-  } else{
-    storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
-    storage.redis.publish("bigbench_timing", JSON.stringify(timing));
-  }
+    } else{
+      storage.redis.hmset("bigbench_timing", timing, function(){ callback(ramp, timing); });
+      storage.redis.publish("bigbench_timing", JSON.stringify(timing));
+    }
+  });
 }
 
 // If no ramp is returned, all bots are started at the same time.

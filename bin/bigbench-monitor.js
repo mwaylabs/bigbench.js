@@ -42,34 +42,42 @@ storage.open(function(){
     "bigbench_timing"
   );
   
-  // System
-  setInterval(function(){
-    storage.redis.hgetall("bigbench_bots", function(error, bots){
-      total = 0; stopped = 0; running = 0;
-      for (var bot in bots){
-        total++;
-        if(bots[bot] === "STOPPED"){ stopped++; }
-        if(bots[bot] === "RUNNING"){ running++; }
-      }
-      printLine("bigbench_bots", "TOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped);
-    });
-  }, systemInterval);
+  // System & Progress Schedule
+  setInterval(systemUpdate, systemInterval);
+  setInterval(progressUpdate, systemInterval);
   
-  // Progress
-  setInterval(function(){
-    if(!isRunning) return;
-    storage.redis.hgetall("bigbench_timing", function(error, timing){
-      var now      = new Date().getTime(),
-          timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
-          progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
-      
-      if(progress > 100){ progress = 100; }
-      if(progress < 0)  { progress = 0; }
-      
-      printLine("bigbench_progress", "PROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s");
-    });
-  }, systemInterval);
+  // Initial Call
+  systemUpdate();
+  progressUpdate();
 });
+
+// Currently running bots
+var systemUpdate = function(){
+  storage.redis.hgetall("bigbench_bots", function(error, bots){
+    total = 0; stopped = 0; running = 0;
+    for (var bot in bots){
+      total++;
+      if(bots[bot] === "STOPPED"){ stopped++; }
+      if(bots[bot] === "RUNNING"){ running++; }
+    }
+    printLine("bigbench_bots", color.cyan + "TOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped + color.reset);
+  });
+}
+
+// Progress if running
+var progressUpdate = function(){
+  if(!isRunning) return;
+  storage.redis.hgetall("bigbench_timing", function(error, timing){
+    var now      = new Date().getTime(),
+        timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
+        progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
+    
+    if(progress > 100){ progress = 100; }
+    if(progress < 0)  { progress = 0; }
+    
+    printLine("bigbench_progress", color.magenta + "PROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s" + color.reset);
+  });
+}
 
 // Round float numbers
 var numberFormat = function(number){
