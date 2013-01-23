@@ -7,7 +7,7 @@
     {
       name: 'Blank Page',
       hostname: 'localhost',
-      path: '/blank',
+      path: '/wait/50',
       port: 8888,
       method: 'GET',
     }

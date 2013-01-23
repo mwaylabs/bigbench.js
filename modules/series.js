@@ -35,7 +35,7 @@ exports.capture = function(benchmark, time, callback){
           isDuration  = (name.indexOf("_duration") !== -1);
       
       // Clone Reply for Save Manipulation
-      current[name] = exports.clone(replies[index]);
+      current[name] = exports.clone(replies[index]) || {};
       
       // Traverse Status - 200: 34, 404: 3, 500: 1
       for(var status in replies[index]){
@@ -50,6 +50,9 @@ exports.capture = function(benchmark, time, callback){
           try{ lastDivider = current[nameDivider][status]; } catch(e){};
           current[name][status] = exports.roundNumber(current[name][status] / lastDivider) || 0;
         }
+        
+        // delete status if its zero
+        if(current[name][status] === 0) delete current[name][status];
       }
       
       // Append & Publish Results to Redis
@@ -132,8 +135,8 @@ exports.statistics = function(callback){
             durations   = exports.statusArray(results[resultIndex + 1]);
         
         statistics[data[index].name] = {
-          "REQUESTS_PER_SECOND"  : exports.calculateStatistics(requests),
-          "DURATIONS_PER_SECOND" : exports.calculateStatistics(durations)
+          "REQUESTS_PER_SECOND"  : exports.calculateStatistics(requests, false),
+          "DURATIONS_PER_SECOND" : exports.calculateStatistics(durations, true)
         };
       }
       
@@ -154,19 +157,25 @@ exports.statusArray = function(captures){
     for(var status in capture){
       if(!statusArray[status]) statusArray[status] = [];
       statusArray[status].push(parseFloat(capture[status]));
+      
+    }
+    // if not present this second, add a 0
+    for(var storedStatus in statusArray){
+      if(!statusArray[storedStatus][i-1]) statusArray[storedStatus].push(0);
     }
   };
   return statusArray;
 };
 
 // Calculates Min Max and Average for a status array
-exports.calculateStatistics = function(statusArray){
+exports.calculateStatistics = function(statusArray, ignoreZeros){
   var calculation = {};
   for(var status in statusArray){
+    var array = ignoreZeros ? exports.arrayWithoutZeros(statusArray[status]) : statusArray[status];
     calculation[status] = {
-      AVG: exports.roundNumber(exports.avg(statusArray[status])),
-      MAX: exports.roundNumber(exports.max(statusArray[status])),
-      MIN: exports.roundNumber(exports.min(statusArray[status]))
+      AVG: exports.roundNumber(exports.avg(array)),
+      MAX: exports.roundNumber(exports.max(array)),
+      MIN: exports.roundNumber(exports.min(array))
     };
   }
   return calculation;
@@ -185,5 +194,14 @@ exports.min = function(array){
 // Calculates the average of an array
 exports.avg = function(array){
   return eval(array.join('+')) / array.length;
+}
+
+// Removes all zeros from the array and returns a new instance
+exports.arrayWithoutZeros = function(array){
+  var newArray = [];
+  for (var i=0; i < array.length; i++) {
+    if(array[i] > 0) newArray.push(array[i]);
+  };
+  return newArray;
 }
 
