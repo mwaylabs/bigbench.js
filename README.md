@@ -1,7 +1,7 @@
 # BigBench.js
 **bigbench.js** is a distributed load-generation framework for web application benchmarking that collects data in real-time.
 
-Visit [bigbench.io](http://mwaylabs.github.com/bigbench-js) for more information and documentation.
+Visit [bigbench.io](http://mwaylabs.github.com/bigbench.js) for more information and documentation.
 
 ## Installation
 It is written in pure Javascript and runs on node.js. Therefore you can install it using npm:
