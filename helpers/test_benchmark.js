@@ -1,5 +1,5 @@
 {
-  duration:     40,    // duration in seconds
+  duration:     20,    // duration in seconds
   concurrency:  1,     // concurrent requests
   delay:        0,     // pause in milliseconds between each request
   rampUp:       0,     // how many seconds should it take until all bots are active

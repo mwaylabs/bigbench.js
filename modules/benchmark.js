@@ -7,7 +7,6 @@ var storage       = require("../modules/storage"),
     color         = require('../modules/color'),
     crypto        = require('crypto'),
     http          = require('http'),
-    agent         = new http.Agent({ maxSockets: 1 }),
     fs            = require('fs'),
     util          = require('util'),
     querystring   = require("querystring"),
@@ -91,18 +90,21 @@ exports.run = function(done){
   
     // start concurrent
     exports.start();
-    for (var i = 0; i < benchmark.concurrency; i++) { exports.request(benchmark, 0); };
+    for (var i = 0; i < benchmark.concurrency; i++) {
+      var agent = new http.Agent({ maxSockets: 1 });
+      exports.request(benchmark, 0, agent);
+    };
     
     stopCallback = done;
   });
 }
 
 // Cycle through all actions and request it
-exports.request = function(benchmark, index){
+exports.request = function(benchmark, index, agent){
   if(status !== "RUNNING"){ return; }
   
   var action   = benchmark.actions[index],
-      options  = exports.validateAction(action),
+      options  = exports.validateAction(action, agent),
       duration = 0,
       started  = new Date().getTime(),
       request  = http.request(options, function(response) {
@@ -120,8 +122,8 @@ exports.request = function(benchmark, index){
           if(index > benchmark.actions.length - 1){ index = 0 };
           
           // call with or without delay
-          if(benchmark.delay <= 0){ exports.request(benchmark, index); }
-          else{ setTimeout(function(){exports.request(benchmark, index); }, benchmark.delay); }
+          if(benchmark.delay <= 0){ exports.request(benchmark, index, agent); }
+          else{ setTimeout(function(){exports.request(benchmark, index, agent); }, benchmark.delay); }
         });
       });
   
@@ -133,7 +135,7 @@ exports.request = function(benchmark, index){
 }
 
 // Ensures the action maps the parameters, etc.
-exports.validateAction = function(action){
+exports.validateAction = function(action, agent){
   var options = { agent: agent };
   if(action.host){      options.host      = action.host; };
   if(action.hostname){  options.hostname  = action.hostname; };
