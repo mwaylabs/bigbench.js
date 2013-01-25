@@ -152,16 +152,15 @@ exports.statistics = function(callback){
 // Parses the time series and converts it into an object with statuses and an array
 exports.statusArray = function(captures){
   var statusArray = {};
-  for (var i=0; i < captures.length; i++) {
+  for (var i = 0; i < captures.length; i++) {
     var capture = JSON.parse(captures[i]);
     for(var status in capture){
       if(!statusArray[status]) statusArray[status] = [];
       statusArray[status].push(parseFloat(capture[status]));
-      
     }
-    // if not present this second, add a 0
+    // add a 0 if no requests were made in this second
     for(var storedStatus in statusArray){
-      if(!statusArray[storedStatus][i-1]) statusArray[storedStatus].push(0);
+      if(!statusArray[storedStatus][i]) statusArray[storedStatus].push(0);
     }
   };
   return statusArray;
@@ -175,7 +174,8 @@ exports.calculateStatistics = function(statusArray, ignoreZeros){
     calculation[status] = {
       AVG: exports.roundNumber(exports.avg(array)),
       MAX: exports.roundNumber(exports.max(array)),
-      MIN: exports.roundNumber(exports.min(array))
+      MIN: exports.roundNumber(exports.min(array)),
+      ALL: statusArray[status]
     };
   }
   return calculation;
