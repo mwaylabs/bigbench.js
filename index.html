@@ -26,6 +26,7 @@
               <li><a href="#setup">Setup</a></li>
               <li><a href="#control">Control</a></li>
               <li><a href="#data">Data and Events</a></li>
+              <li><a href="#websocket">WebSocket</a></li>
               <li><a href="#examples">Examples</a></li>
             </ul>
             <ul class="nav pull-right">
@@ -65,6 +66,7 @@
         <li><a href="#setup"><i class="icon-chevron-right"></i> Setup</a></li>
         <li><a href="#control"><i class="icon-chevron-right"></i> Control</a></li>
         <li><a href="#data"><i class="icon-chevron-right"></i> Data and Events</a></li>
+        <li><a href="#websocket"><i class="icon-chevron-right"></i> WebSocket</a></li>
         <li><a href="#examples"><i class="icon-chevron-right"></i> Examples</a></li>
       </ul>
       
@@ -187,6 +189,9 @@ module.exports = {
     host: "localhost",
     port: 6379,
     password: "ADD_A_PASSWORD_HERE"
+  },
+  websocket: {
+    port: 3001
   }
 }</pre>
         <p>
@@ -494,9 +499,43 @@ module.exports = {
       </div>
     </section>
     
+    <section id="websocket">
+      <div class="page-header">
+        <h1>WebSocket <small>Consume events in the browser</small></h1>
+      </div>
+      <p>
+        To consume the events listed above in the browser simply start:
+      </p>
+      <pre>bigbench-socket.js</pre>
+      
+      <p>
+        It offers a WebSocket service that publishes all messages from Redis pub/sub to the socket. The default port for it is <code>3001</code> that can be
+        overwritten using the <code>config.js</code> file.
+      </p>
+      
+      <p>To consume the events in the browser simply listen for channels. An example using <a href="http://socket.io">Socket.io</a> could look like this:</p>
+      <pre>
+&lt;script src="socket.io.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  var socket = io.connect('http://localhost:3001');
+  
+  // Display Series
+  socket.on('bigbench_total_series', function (data) {
+    console.log(data);
+  });
+  
+  // Display Statistics
+  socket.on('bigbench_statistics', function (data) {
+    console.log(data);
+  });
+  ...
+&lt;/script&gt;</pre>
+    </section>
+    
     <section id="examples">
       <div class="page-header">
         <h1>Examples <small>Some useful benchmarks</small></h1>
+      </div>
         <p>
           Here are some examples of benchmarks that you might find useful:
         </p>
