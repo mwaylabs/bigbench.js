@@ -5,15 +5,18 @@
   "bin": {
     "bigbench.js"         : "bin/bigbench.js",
     "bigbench-bot.js"     : "bin/bigbench-bot.js",
-    "bigbench-monitor.js" : "bin/bigbench-monitor.js"
+    "bigbench-monitor.js" : "bin/bigbench-monitor.js",
+    "bigbench-socket.js"  : "bin/bigbench-socket.js"
   },
   "dependencies": {
-    "jake"      : "0.5.5",
-    "redis"     : "0.8.1",
-    "supertest" : "0.3.1",
-    "assert"    : "0.4.9",
-    "should"    : "1.2.0",
-    "docco"     : "0.4.0",
-    "mocha"     : "1.7.0"
+    "jake"                : "0.5.5",
+    "redis"               : "0.8.1",
+    "socket.io"           : "0.9.13",
+    "socket.io-client"    : "0.9.11",
+    "supertest"           : "0.3.1",
+    "assert"              : "0.4.9",
+    "should"              : "1.2.0",
+    "docco"               : "0.4.0",
+    "mocha"               : "1.7.0"
   }
 }

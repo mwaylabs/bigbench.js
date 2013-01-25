@@ -4,6 +4,9 @@ var test = {
   redis: {
     host: "localhost",
     port: 6379
+  },
+  websocket: {
+    port: 3001
   }
 };
 
@@ -13,6 +16,9 @@ var development = {
   redis: {
     host: "localhost",
     port: 6379
+  },
+  websocket: {
+    port: 3001
   }
 };
 
@@ -23,6 +29,9 @@ var production = {
     host: "ADD_AN_IP_HERE",
     port: 6379,
     password: "ADD_A_PASSWORD_HERE"
+  },
+  websocket: {
+    port: 3001
   }
 };
 

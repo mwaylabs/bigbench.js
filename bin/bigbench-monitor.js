@@ -2,9 +2,6 @@
 
 var config         = require('../config/config'),
     storage        = require('../modules/storage'),
-    events         = require('../modules/events'),
-    benchmark      = require('../modules/benchmark'),
-    bot            = require('../modules/bot'),
     color          = require('../modules/color'),
     isRunning      = false,
     systemInterval = 5000,
