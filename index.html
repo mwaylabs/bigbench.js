@@ -19,17 +19,8 @@
           </button>
           <a class="brand" href="./index.html">bigbench.js</a>
           <div class="nav-collapse collapse">
-            <ul class="nav">
-              <li class=""><a href="./index.html">Home</a></li>
-              <li><a href="#intro">Intro</a></li>
-              <li><a href="#benchmark">Benchmark</a></li>
-              <li><a href="#setup">Setup</a></li>
-              <li><a href="#control">Control</a></li>
-              <li><a href="#data">Data and Events</a></li>
-              <li><a href="#websocket">WebSocket</a></li>
-              <li><a href="#examples">Examples</a></li>
-            </ul>
             <ul class="nav pull-right">
+              <li class=""><a href="https://github.com/mwaylabs/bigbench.js">GitHub Repository</a></li>
               <li class=""><a href="./docs/bigbench.html">JS Documentation</a></li>
             </ul>
           </div>
@@ -109,57 +100,53 @@
           <h1>Benchmark <small>How does it look like?</small></h1>
         </div>
         <p>
-          A benchmark is a simply JavaScript file that contains an object. It has to have at least one action. To auto-generate a template like this simply type <code>bigbench.js new</code>. This will create a <code>benchmark.js</code> in the current folder.
+          A benchmark is a simply JSON file. It has to have at least one action. To auto-generate a template like this simply type <code>bigbench.js new</code>. This will create a <code>benchmark.json</code> in the current folder.
         </p>
         <pre>
 {
-  duration:     120,    // duration in seconds                                                      - default 60
-  concurrency:  1,      // number of concurrent requests                                            - default 1
-  delay:        0,      // how many milliseconds should be paused between each request (slows down) - default 0
-  rampUp:       20,     // how many seconds should it take until all bots are active                - default 0
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       20,
+  "actions":[
     {
-      name: 'Google Startpage',
-      hostname: 'www.google.com',
-      path: '/',
-      port: 80,
-      method: 'GET',
+      "name": "Google Startpage",
+      "hostname": "www.google.com",
+      "path": "/",
+      "port": 80,
+      "method": "GET"
     },
     {
-      name: 'Google Search',
-      hostname: 'www.google.com',
-      path: '/',
-      port: 80,
-      method: 'GET',
-      params: { q: 'southdesign' }
+      "name": "Google Search",
+      "hostname": "www.google.com",
+      "path": "/",
+      "port": 80,
+      "method": "GET",
+      "params": { "q": "southdesign" }
     },
     {
-      name: 'Basic Auth Page',
-      hostname: 'www.website.com',
-      path: '/secret',
-      port: 80,
-      method: 'GET',
-      auth: 'user:password'
+      "name": "Basic Auth Page",
+      "hostname": "www.website.com",
+      "path": "/secret",
+      "port": 80,
+      "method": "GET",
+      "auth": "user:password"
     },
     {
-      name: 'Function for Dynamic Params',
-      hostname: 'www.google.com',
-      path: '/',
-      port: 80,
-      method: 'GET',
-      params: function(){
-        var index = Math.floor(Math.random() * 3),
-            terms = ['one', 'of', 'these'];
-        return { q: terms[index] };
-      }
+      "name": "Function for Dynamic Params",
+      "hostname": "www.google.com",
+      "path": "/",
+      "port": 80,
+      "method": "GET",
+      "params": "function(){ var index = Math.floor(Math.random() * 3), terms = ['one', 'of', 'these']; return { 'q': terms[index] }; }"
     },
     {
-      name: 'Posting Content',
-      hostname: 'www.google.com',
-      path: '/signin',
-      port: 80,
-      method: 'POST',
-      params: { user: 'credentials' }
+      "name": "Posting Content",
+      "hostname": "www.google.com",
+      "path": "/signin",
+      "port": 80,
+      "method": "POST",
+      "params": { "user": "credentials" }
     }
   ]
 }</pre>
@@ -222,7 +209,7 @@ module.exports = {
         <h3>Save</h3>
         <p>
           Before a benchmark is ready to run it has to be saved to the system. This can be done with:
-          <pre>bigbench.js save benchmark.js</pre>
+          <pre>bigbench.js save benchmark.json</pre>
           This stores the benchmark for all bots in the Redis database and resets the previously recorded data.
         </p>
         <img src="./img/save.png">
@@ -300,7 +287,7 @@ module.exports = {
             </tr>
             <tr>
               <td><b>bigbench_benchmark_saved</b></td>
-              <td><code>Benchmark JavaScript Closure</code></td>
+              <td><code>Benchmark JSON</code></td>
               <td>The benchmark that was currently saved</td>
             </tr>
             <tr>
@@ -410,7 +397,7 @@ module.exports = {
             <tr>
               <td><b>bigbench_benchmark</b></td>
               <td><em>String</em></td>
-              <td><code>Benchmark JavaScript Closure</code></td>
+              <td><code>Benchmark JSON</code></td>
               <td>The current benchmark</td>
             </tr>
             <tr>
@@ -543,17 +530,17 @@ module.exports = {
         <h3>#1: Single action on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        0,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET"
     }
   ]
 }</pre>
@@ -562,18 +549,18 @@ module.exports = {
         <h3>#2: Single action with fixed parameters on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        0,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
-      params: { say: "hello" }
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET",
+      "params": { "say": "hello" }
     }
   ]
 }</pre>
@@ -582,22 +569,18 @@ module.exports = {
         <h3>#3: Single action with dynamic parameters on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        0,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
-      params: function(){
-        var index     = Math.floor(Math.random() * 3),
-            greetings = ['hello', 'goodbye', 'seeyou'];
-        return { say: greetings[index] };
-      }
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET",
+      "params": "function(){ var index = Math.floor(Math.random() * 3), greetings = ['hello', 'goodbye', 'seeyou']; return { say: greetings[index] };}"
     }
   ]
 }</pre>
@@ -606,24 +589,24 @@ module.exports = {
         <h3>#4: Multiple actions on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        0,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Hello Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
+      "name": "Local Hello Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET"
     },
     {
-      name: 'Local Goodbye Action',
-      hostname: 'localhost',
-      path: '/goodbye',
-      port: 80,
-      method: 'GET',
+      "name": "Local Goodbye Action",
+      "hostname": "localhost",
+      "path": "/goodbye",
+      "port": 80,
+      "method": "GET"
     }
   ]
 }</pre>
@@ -633,17 +616,17 @@ module.exports = {
         <h3>#5: Throttled action on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        20,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        20,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET"
     }
   ]
 }</pre>
@@ -652,17 +635,17 @@ module.exports = {
         <h3>#6: Concurrent action on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  10,
-  delay:        0,
-  rampUp:       0,
-  actions:[
+  "duration":     120,
+  "concurrency":  10,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET"
     }
   ]
 }</pre>
@@ -671,17 +654,17 @@ module.exports = {
         <h3>#7: Ramp up with single action on localhost</h3>
         <pre>
 {
-  duration:     120,
-  concurrency:  1,
-  delay:        0,
-  rampUp:       60,
-  actions:[
+  "duration":     120,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       60,
+  "actions":[
     {
-      name: 'Local Action',
-      hostname: 'localhost',
-      path: '/hello',
-      port: 80,
-      method: 'GET',
+      "name": "Local Action",
+      "hostname": "localhost",
+      "path": "/hello",
+      "port": 80,
+      "method": "GET"
     }
   ]
 }</pre>
