@@ -9,40 +9,40 @@ describe("Benchmark", function(){
   // clear redis before every test
   beforeEach(function(done){ helper.clearRedis(done); });
   
-  var benchmarkString = "\
+  var benchmarkJSON = '\
     {\
-      duration: 2,\
-      rampUp:   20,\
-      actions:[\
+      "duration": 2,\
+      "rampUp":   20,\
+      "actions":[\
         {\
-          name: 'Blank Page',\
-          hostname: 'localhost',\
-          path: '/blank',\
-          port: 8888,\
-          method: 'GET',\
+          "name": "Blank Page",\
+          "hostname": "localhost",\
+          "path": "/blank",\
+          "port": 8888,\
+          "method": "GET"\
         },\
         {\
-          name: 'Parameter Page',\
-          hostname: 'localhost',\
-          path: '/params',\
-          port: 8888,\
-          method: 'GET',\
-          params: function(){ return { say: 'hello', to: 'me' }}\
+          "name": "Parameter Page",\
+          "hostname": "localhost",\
+          "path": "/params",\
+          "port": 8888,\
+          "method": "GET",\
+          "params": "function(){ return { say: \'hello\', to: \'me\' }}"\
         },\
         {\
-          name: 'Post Page',\
-          hostname: 'localhost',\
-          path: '/upload',\
-          port: 8888,\
-          method: 'POST',\
-          params: function(){ return { say: 'hello', to: 'me' }}\
+          "name": "Post Page",\
+          "hostname": "localhost",\
+          "path": "/upload",\
+          "port": 8888,\
+          "method": "POST",\
+          "params": "function(){ return { say: \'hello\', to: \'me\' }}"\
         }\
       ]\
     }\
-  ";
+  ';
   
   it("stores and loads benchark globally", function(done){
-    benchmark.save(benchmarkString, function(){
+    benchmark.save(benchmarkJSON, function(){
       benchmark.load(function(aBenchmark){
         aBenchmark.duration.should.eql(2);
         aBenchmark.actions[0].port.should.eql(8888);
@@ -61,7 +61,7 @@ describe("Benchmark", function(){
   });
   
   it("run the benchmark", function(done){
-    benchmark.save(benchmarkString, function(){
+    benchmark.save(benchmarkJSON, function(){
       benchmark.run(function(){
         tracker.findForAction(0, function(trackings){
           parseInt(trackings[200]).should.be.above(50);

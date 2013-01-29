@@ -33,12 +33,11 @@ exports.exiting = function(yesOrNo){
   return exiting;
 }
 
-// Flushes the redis and globally saves a benchark string as a closure
-exports.save = function(benchmarkString, callback){
-  var benchmarkClosure = "(function(){ return " + benchmarkString + "});";
+// Flushes the redis and globally saves a benchark as JSON
+exports.save = function(benchmarkJSON, callback){
   exports.resetData(function(){
-    storage.redis.set("bigbench_benchmark", benchmarkClosure, function(){
-      storage.redis.publish("bigbench_benchmark_saved", benchmarkClosure);
+    storage.redis.set("bigbench_benchmark", benchmarkJSON, function(){
+      storage.redis.publish("bigbench_benchmark_saved", benchmarkJSON);
       console.log(color.green + "Saved" + color.reset);
       callback();
     });
@@ -47,9 +46,16 @@ exports.save = function(benchmarkString, callback){
 
 // Loads and evaluates a benchmark string as closure from the global store
 exports.load = function(callback){
-  storage.redis.get("bigbench_benchmark", function(error, benchmarkString){
-    if(benchmarkString){ callback(eval(benchmarkString)());
-    } else{              callback(false); }
+  storage.redis.get("bigbench_benchmark", function(error, benchmarkJSON){
+    if(benchmarkJSON){
+      var benchmarkObject = JSON.parse(benchmarkJSON);
+      for (var i = 0; i < benchmarkObject.actions.length; i++) {
+        if(benchmarkObject.actions[i].params){
+          benchmarkObject.actions[i].params = eval("(" + benchmarkObject.actions[i].params + ")");
+        }
+      };
+      callback(benchmarkObject);
+    } else{            callback(false); }
   });
 }
 

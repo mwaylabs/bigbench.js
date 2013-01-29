@@ -1,0 +1,15 @@
+{
+  "duration":     20,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       0,
+  "actions":[
+    {
+      "name": "Blank Page",
+      "hostname": "localhost",
+      "path": "/wait/50",
+      "port": 8888,
+      "method": "GET"
+    }
+  ]
+}
