@@ -38,6 +38,13 @@ storage.open(function(){
     events.stop("ALL", function(){ process.exit(1); });
   }
   
+  // Version
+  if(argument === "--version" || argument === "-v"){
+    var info = require('../package');
+    console.log(color.green + "bigbench " + info.version + color.reset);
+    process.exit(1);
+  }
+  
   // Help
   if(argument === "--help" || argument === "-h"){
     console.log("\n\

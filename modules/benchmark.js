@@ -47,16 +47,20 @@ exports.save = function(benchmarkJSON, callback){
 // Loads and evaluates a benchmark string as closure from the global store
 exports.load = function(callback){
   storage.redis.get("bigbench_benchmark", function(error, benchmarkJSON){
-    if(benchmarkJSON){
-      var benchmarkObject = JSON.parse(benchmarkJSON);
-      for (var i = 0; i < benchmarkObject.actions.length; i++) {
-        if(benchmarkObject.actions[i].params){
-          benchmarkObject.actions[i].params = eval("(" + benchmarkObject.actions[i].params + ")");
-        }
-      };
-      callback(benchmarkObject);
+    if(benchmarkJSON){ callback(exports.parseAndEvaluateFromJSON(benchmarkJSON));
     } else{            callback(false); }
   });
+}
+
+// Parses the JSON and evaluates the params from string or object to function or object
+exports.parseAndEvaluateFromJSON = function(json){
+  var benchmarkObject = JSON.parse(json);
+  for (var i = 0; i < benchmarkObject.actions.length; i++) {
+    if(benchmarkObject.actions[i].params){
+      benchmarkObject.actions[i].params = eval("(" + benchmarkObject.actions[i].params + ")");
+    }
+  };
+  return benchmarkObject;
 }
 
 // Resets the collected data but leaves the bots and benchmark intact
@@ -177,13 +181,13 @@ exports.toObject = function(objectOrFunction){
 
 // Copies the benchmark template to the current directory for the new command
 exports.createBenchmarkFromTemplate = function(callback){
-  var template  = fs.createReadStream(__dirname + '/../templates/benchmark.js'),
+  var template  = fs.createReadStream(__dirname + '/../templates/benchmark.json'),
       template2 = fs.createReadStream(__dirname + '/../templates/config.js'),
-      copy      = fs.createWriteStream('benchmark.js'),
+      copy      = fs.createWriteStream('benchmark.json'),
       copy2     = fs.createWriteStream('config.js');
   
   template.on('close', function(){
-    console.log(color.green + "Created benchmark.js" + color.reset);
+    console.log(color.green + "Created benchmark.json" + color.reset);
   })
   
   template2.on('close', function(){
