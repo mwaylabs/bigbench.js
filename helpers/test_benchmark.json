@@ -9,7 +9,8 @@
       "hostname": "localhost",
       "path": "/wait/50",
       "port": 8888,
-      "method": "GET"
+      "method": "GET",
+      "params": { "q": "test" }
     }
   ]
 }

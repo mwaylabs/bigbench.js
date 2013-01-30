@@ -71,10 +71,10 @@ stop                // Stop the running benchmark\n\
 
 // Trap Exits
 process.on('SIGINT', function(){
-  benchmark.teardownAndStop(function(){ process.exit(1); });
+  benchmark.teardownAndStop(function(){ process.exit(1); }, false);
 });
 
 process.on('uncaughtException', function(err){
   console.log(color.red + err + color.reset);
-  benchmark.teardownAndStop(function(){ process.exit(1); });
+  benchmark.teardownAndStop(function(){ process.exit(1); }, true);
 });
