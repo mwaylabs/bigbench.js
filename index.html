@@ -7,9 +7,18 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" media="all">
     <link href="css/bootstrap-responsive.min.css" rel="stylesheet" media="all">
     <link href="css/docs.css" rel="stylesheet" media="all">
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+    $(document).ready(function(){
+      $("#bigbench-affix").affix({
+          offset: 400
+      });
+    });
+    </script>
   </head>
   <body data-spy="scroll">
-    
+
     <!-- Navigation -->
     <div class="navbar navbar-inverse navbar-fixed-top">
       <div class="navbar-inner">
@@ -57,7 +66,7 @@
         
         <!-- Affix Navigation Left -->
         <div class="span3">
-          <ul class="nav nav-list bs-docs-sidenav affix span2" style="margin-left: 0px; margin-top: 50px;" data-spy="affix" data-offset-top="260">
+          <ul id="bigbench-affix" class="nav nav-list bs-docs-sidenav affix span2" style="margin-left: 0px; margin-top: 50px;" data-spy="affix" data-offset-top="400">
             <li class="active"><a href="#intro"><i class="icon-chevron-right"></i> Intro</a></li>
             <li><a href="#benchmark"><i class="icon-chevron-right"></i> Benchmark</a></li>
             <li><a href="#setup"><i class="icon-chevron-right"></i> Setup</a></li>
@@ -703,7 +712,18 @@
       </div>
     </div>
     
-    <script src="http://code.jquery.com/jquery-latest.js"></script>
-    <script src="js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-38235331-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
   </body>
 </html>
