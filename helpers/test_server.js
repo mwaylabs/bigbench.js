@@ -18,6 +18,16 @@ app.get('/wait/:delay', function(req, res){
   }, delay);
 });
 
+// 200, 404 or 500 after :delay ms if GET /statuses/random
+app.get('/statuses/random/:delay', function(req, res){
+  var delay = parseInt(req.params.delay);
+  setTimeout(function(){
+    res.setHeader('Content-Type', 'text/plain');
+    res.send("Ok after " + delay + " ms", randomStatus())
+    res.end();
+  }, delay);
+});
+
 // 200 if GET /params?say=hello&to=me
 app.get('/params', function(req, res){
   if(req.query.say === "hello" && req.query.to === "me"){
@@ -37,5 +47,12 @@ app.post('/upload', function(req, res){
     res.send(500, 'Parameters not here!');
   }
 });
+
+// returns a random status
+var randomStatus = function(){
+  var index    = Math.floor(Math.random() * 3),
+      statuses = [200, 404, 500]; 
+  return statuses[index];
+};
 
 app.listen(8888);

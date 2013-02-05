@@ -8,6 +8,10 @@ exports.track = function(index, status, duration, callback){
     .hincrby("bigbench_total", status, 1)
     .hincrby("bigbench_action_" + index + "_duration", status, duration)
     .hincrby("bigbench_total_duration", status, duration)
+    .hincrby("bigbench_action_" + index, "ALL", 1)
+    .hincrby("bigbench_total", "ALL", 1)
+    .hincrby("bigbench_action_" + index + "_duration", "ALL", duration)
+    .hincrby("bigbench_total_duration", "ALL", duration)
     .exec(callback);
 }
 
