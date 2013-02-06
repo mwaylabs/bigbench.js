@@ -163,6 +163,9 @@ exports.statusArray = function(captures){
       if(!statusArray[storedStatus][i]) statusArray[storedStatus].push(0);
     }
   };
+  for(status in statusArray){
+    if(!statusArray[status][0]) statusArray[status][0] = 0;
+  }
   return statusArray;
 };
 
