@@ -8,7 +8,7 @@ var config        = require('../config/config'),
     bot           = require('../modules/bot'),
     color         = require('../modules/color'),
     argument      = process.argv[2],
-    argumentError = color.red + "ArgumentError: new, save, start or stop required" + color.reset;
+    argumentError = color.red + "ArgumentError: new, save, reset, start or stop required" + color.reset;
 
 
 // Setup
@@ -38,6 +38,14 @@ storage.open(function(){
     events.stop("ALL", function(){ process.exit(1); });
   }
   
+  // Reset Redis
+  if(argument === "reset"){
+    storage.redis.flushall(function(){
+      console.log(color.green + "Flushed Redis" + color.reset);
+      process.exit(1);
+    });
+  }
+  
   // Version
   if(argument === "--version" || argument === "-v"){
     var info = require('../package');
@@ -53,6 +61,7 @@ Usage: bigbench action [arguments]\n\
 Actions:\n\
 new                 // Create a benchmark skeleton\n\
 save benchmark.js   // Global save the benchmark\n\
+reset               // Resets redis full incl. bots\n\
 start               // Start the saved benchmark\n\
 stop                // Stop the running benchmark\n\
     ");
@@ -65,6 +74,7 @@ stop                // Stop the running benchmark\n\
     && argument !== "save" 
     && argument !== "start" 
     && argument !== "stop" 
+    && argument !== "reset" 
     && argument !== "--help" 
     && argument !== "-h") throw argumentError;
 });

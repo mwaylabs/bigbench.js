@@ -16,20 +16,18 @@ var config         = require('../config/config'),
 storage.open(function(){
   
   // Status
-  setInterval(function(){
-    storage.redis.get("bigbench_status", function(err, status){
-      isRunning = (status === "RUNNING");
-    });
-  }, 1000);
+  storage.redis.get("bigbench_status", function(err, status){ isRunning = (status === "RUNNING"); });
   
   // Handle Events
   storage.redisForEvents.on("message", function (channel, message) {
     printLine(channel, message);
+    if(channel == "bigbench_status"){ isRunning = (message === "RUNNING"); }
   });
   
   // Subscribe
   storage.redisForEvents.subscribe(
-    "bigbench_bots_start", 
+    "bigbench_status",
+    "bigbench_bots_start",
     "bigbench_bots_stop", 
     "bigbench_bots_status", 
     "bigbench_benchmark_saved",

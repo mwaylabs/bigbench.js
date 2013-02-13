@@ -51,9 +51,12 @@ exports.capture = function(benchmark, time, callback){
           current[name][status] = exports.roundNumber(current[name][status] / lastDivider) || 0;
         }
         
-        // delete status if its zero
+        // delete status if it's zero
         if(current[name][status] === 0) delete current[name][status];
       }
+      
+      // Add Timing Information
+      current[name]["SECOND"] = time
       
       // Append & Publish Results to Redis
       var jsonSnapshot = JSON.stringify(current[name]);
@@ -173,6 +176,7 @@ exports.statusArray = function(captures){
 exports.calculateStatistics = function(statusArray, ignoreZeros){
   var calculation = {};
   for(var status in statusArray){
+    if(status === "SECOND"){ continue; } 
     var array = ignoreZeros ? exports.arrayWithoutZeros(statusArray[status]) : statusArray[status];
     calculation[status] = {
       AVG: exports.roundNumber(exports.avg(array)),

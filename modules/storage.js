@@ -16,9 +16,14 @@ exports.open = function(callback){
 
 // Checks redis connection
 exports.checkRedis = function(callback){
+  
+  // Log disconnection, etc.
+  redis.on("error",           function(error){ console.log(error); });
+  redisForEvents.on("error",  function(error){ console.log(error); });
+  
+  // Start all on callback
   if(redis.connected){ callback(); }
   redis.on("ready", callback);
-  redis.on("error", function(error){ throw error; });
 }
 
 exports.redis = redis;

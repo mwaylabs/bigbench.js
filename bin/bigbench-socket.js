@@ -3,7 +3,7 @@
 var config  = require('../config/config'),
     storage = require('../modules/storage'),
     color   = require('../modules/color'),
-    io      = require('socket.io').listen(config.websocket.port, { log: false });
+    io      = require('socket.io').listen(config.websocket.port);
 
 // Setup
 storage.open(function(){

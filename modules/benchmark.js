@@ -218,6 +218,7 @@ exports.setupAndStart = function(callback){
     exports.load(function(benchmark){
       exports.setupTiming(benchmark, function(ramp, timing){
         storage.redis.set("bigbench_status", "RUNNING");
+        storage.redis.publish("bigbench_status", "RUNNING");
         exports.startRamp(ramp);
         series.start(benchmark);
         exports.registerStop(benchmark, callback);
@@ -281,6 +282,7 @@ exports.teardownAndStop = function(callback, error){
   series.stop();
   console.log(color.green + "Done" + color.reset);
   storage.redis.del("bigbench_status");
+  storage.redis.publish("bigbench_status", "STOPPED");
   if(!error){ series.statistics(callback); }
   else{ callback(); }
 }
