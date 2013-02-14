@@ -11,41 +11,6 @@ var config         = require('../config/config'),
     running        = 0,
     lastRequests   = {};
 
-
-// Setup
-storage.open(function(){
-  
-  // Status
-  storage.redis.get("bigbench_status", function(err, status){ isRunning = (status === "RUNNING"); });
-  
-  // Handle Events
-  storage.redisForEvents.on("message", function (channel, message) {
-    printLine(channel, message);
-    if(channel == "bigbench_status"){ isRunning = (message === "RUNNING"); }
-  });
-  
-  // Subscribe
-  storage.redisForEvents.subscribe(
-    "bigbench_status",
-    "bigbench_bots_start",
-    "bigbench_bots_stop", 
-    "bigbench_bots_status", 
-    "bigbench_benchmark_saved",
-    "bigbench_total_series",
-    "bigbench_total_duration_series",
-    "bigbench_statistics",
-    "bigbench_timing"
-  );
-  
-  // System & Progress Schedule
-  setInterval(systemUpdate, systemInterval);
-  setInterval(progressUpdate, systemInterval);
-  
-  // Initial Call
-  systemUpdate();
-  progressUpdate();
-});
-
 // Currently running bots
 var systemUpdate = function(){
   storage.redis.hgetall("bigbench_bots", function(error, bots){
@@ -94,3 +59,37 @@ var printLine = function(label, content){
   
   console.log(output);
 }
+
+// Setup
+storage.open(function(){
+  
+  // Status
+  storage.redis.get("bigbench_status", function(err, status){ isRunning = (status === "RUNNING"); });
+  
+  // Handle Events
+  storage.redisForEvents.on("message", function (channel, message) {
+    printLine(channel, message);
+    if(channel == "bigbench_status"){ isRunning = (message === "RUNNING"); }
+  });
+  
+  // Subscribe
+  storage.redisForEvents.subscribe(
+    "bigbench_status",
+    "bigbench_bots_start",
+    "bigbench_bots_stop", 
+    "bigbench_bots_status", 
+    "bigbench_benchmark_saved",
+    "bigbench_total_series",
+    "bigbench_total_duration_series",
+    "bigbench_statistics",
+    "bigbench_timing"
+  );
+  
+  // System & Progress Schedule
+  setInterval(systemUpdate, systemInterval);
+  setInterval(progressUpdate, systemInterval);
+  
+  // Initial Call
+  systemUpdate();
+  progressUpdate();
+});

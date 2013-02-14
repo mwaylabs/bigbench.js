@@ -1,5 +1,6 @@
 var config         = require("../config/config"),
     redisdb        = require("redis"),
+    color          = require('../modules/color'),
     redis          = redisdb.createClient(config.redis.port, config.redis.host),
     redisForEvents = redisdb.createClient(config.redis.port, config.redis.host);
 
@@ -11,19 +12,13 @@ if(config.redis.password){
 
 // Ensures that all storage connections are made
 exports.open = function(callback){
-  exports.checkRedis(callback);
-}
-
-// Checks redis connection
-exports.checkRedis = function(callback){
   
   // Log disconnection, etc.
-  redis.on("error",           function(error){ console.log(error); });
-  redisForEvents.on("error",  function(error){ console.log(error); });
+  redis.on("error",           function(error){ console.log(color.red + error + color.reset); });
+  redisForEvents.on("error",  function(error){ console.log(color.red + error + color.reset); });
   
-  // Start all on callback
-  if(redis.connected){ callback(); }
-  redis.on("ready", callback);
+  // Callback
+  callback();
 }
 
 exports.redis = redis;
