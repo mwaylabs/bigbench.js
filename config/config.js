@@ -18,7 +18,7 @@ var development = {
     port: 6379
   },
   websocket: {
-    port: 3001
+    port: 81
   }
 };
 
@@ -31,7 +31,7 @@ var production = {
     password: "ADD_A_PASSWORD_HERE"
   },
   websocket: {
-    port: 3001
+    port: 81
   }
 };
 

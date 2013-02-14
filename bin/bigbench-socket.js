@@ -10,10 +10,7 @@ storage.open(function(){
   
   // Handle Events
   storage.redisForEvents.on("pmessage", function (pattern, channel, message) {
-    var clients = io.sockets.clients() || [];
-    for(var index in clients){
-      clients[index].emit(channel, message);
-    }
+    io.sockets.emit(channel, message);
   });
   
   // Subscribe
