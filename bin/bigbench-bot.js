@@ -36,7 +36,6 @@ process.on('SIGINT', function(){
 });
 
 process.on('uncaughtException', function(err){
-  throw err;
   logger.print("Bot " + bot.id(), err, color.red);
   bot.unregister();
   process.exit(1);
