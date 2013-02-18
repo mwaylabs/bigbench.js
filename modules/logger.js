@@ -1,8 +1,9 @@
-var color = require('../modules/color');
+var color  = require('../modules/color'),
+    events = require('../modules/events');
 
 // Prints an output line with date and format
 exports.print = function(label, content, colorcode){
-  var time    = new Date().getTime(),
+  var time    = events.now(),
       longest = 12,
       fillup  = longest - label.length,
       output  = "";
@@ -17,7 +18,7 @@ exports.print = function(label, content, colorcode){
 
 // Prints an output line with date and format
 exports.printLine = function(label, content){
-  var time    = new Date().getTime(),
+  var time    = events.now(),
       longest = 32,
       fillup  = longest - label.length,
       output  = "";

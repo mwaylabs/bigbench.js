@@ -117,13 +117,13 @@ exports.request = function(benchmark, index, agent){
   var action   = benchmark.actions[index],
       options  = exports.validateAction(action, agent),
       duration = 0,
-      started  = new Date().getTime(),
+      started  = events.now(),
       request  = http.request(options, function(response) {
         response.setEncoding('utf8');
         response.on('end', function () {
           
           // duration
-          duration = new Date().getTime() - started;
+          duration = events.now() - started;
           
           // track
           tracker.track(index, response.statusCode, duration);
@@ -230,7 +230,7 @@ exports.setupAndStart = function(callback){
 
 // Sets up the timestamps for start, stop and ramp up
 exports.setupTiming = function(benchmark, callback){
-  var start  = new Date().getTime(),
+  var start  = events.now(),
       ramp   = false,
       timing = {
         "START": start.toString(),

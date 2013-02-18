@@ -2,6 +2,7 @@
 
 var config         = require('../config/config'),
     storage        = require('../modules/storage'),
+    events         = require('../modules/events'),
     color          = require('../modules/color'),
     logger         = require('../modules/logger'),
     isRunning      = false,
@@ -29,7 +30,7 @@ var systemUpdate = function(){
 var progressUpdate = function(){
   if(!isRunning) return;
   storage.redis.hgetall("bigbench_timing", function(error, timing){
-    var now      = new Date().getTime(),
+    var now      = events.now(),
         timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
         progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
     

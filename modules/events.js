@@ -45,3 +45,9 @@ exports.stop = function(botID, callback){
   storage.redis.publish("bigbench_bots_stop", botID, callback);
   logger.print("Bots", "Stopped ALL", color.green);
 }
+
+// Returns a UTC Timestamp
+exports.now = function(){
+  var d = new Date();
+  return d.getTime() + d.getTimezoneOffset() * 60 * 1000;
+}
