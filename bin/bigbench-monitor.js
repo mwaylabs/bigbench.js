@@ -3,6 +3,7 @@
 var config         = require('../config/config'),
     storage        = require('../modules/storage'),
     color          = require('../modules/color'),
+    logger         = require('../modules/logger'),
     isRunning      = false,
     systemInterval = 5000,
     loadInterval   = 1000,
@@ -20,7 +21,7 @@ var systemUpdate = function(){
       if(bots[bot] === "STOPPED"){ stopped++; }
       if(bots[bot] === "RUNNING"){ running++; }
     }
-    printLine("bigbench_bots", color.cyan + "TOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped + color.reset);
+    logger.printLine("bigbench_bots", color.cyan + "TOTAL:" + total + " RUNNING:" + running + " STOPPED:" + stopped + color.reset);
   });
 }
 
@@ -35,29 +36,8 @@ var progressUpdate = function(){
     if(progress > 100){ progress = 100; }
     if(progress < 0)  { progress = 0; }
     
-    printLine("bigbench_progress", color.magenta + "PROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s" + color.reset);
+    logger.printLine("bigbench_progress", color.magenta + "PROGRESS:" + progress + " % TIMELEFT:" + timeLeft + " s" + color.reset);
   });
-}
-
-// Round float numbers
-var numberFormat = function(number){
-  var rounded = Math.round(number * Math.pow(10,2)) / Math.pow(10,2);
-  return rounded;
-}
-
-// Prints an output line with date and format
-var printLine = function(label, content){
-  var time    = new Date().getTime(),
-      longest = 32,
-      fillup  = longest - label.length,
-      output  = "";
-      
-  output += time;
-  output += "    [" + color.green + label + color.reset + "]";
-  for (var i=0; i < fillup; i++) { output += " " };
-  output += content;
-  
-  console.log(output);
 }
 
 // Setup
@@ -68,7 +48,7 @@ storage.open(function(){
   
   // Handle Events
   storage.redisForEvents.on("message", function (channel, message) {
-    printLine(channel, message);
+    logger.printLine(channel, message);
     if(channel == "bigbench_status"){ isRunning = (message === "RUNNING"); }
   });
   

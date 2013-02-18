@@ -1,7 +1,13 @@
 var storage           = require("../modules/storage"),
     benchmark         = require("../modules/benchmark"),
     config            = require("../config/config"),
+    color             = require('../modules/color'),
+    logger            = require('../modules/logger'),
     crypto            = require('crypto'),
+    status            = "READY",
+    heartbeat         = null,
+    heartbeatRate     = 60000, // every minute
+    heartbeatCount    = 0,
     cachedId          = undefined;
 
 // Initially creates a SHA2 based random bot ID that is used for
@@ -33,19 +39,34 @@ exports.all = function(callback){
 }
 
 // Updates the bot status
-exports.status = function(status, callback){
-  storage.redis.hset("bigbench_bots", exports.id(), status, callback);
-  storage.redis.publish("bigbench_bots_status", exports.id() + ":" + status);
+exports.status = function(aStatus, callback){
+  status = aStatus;
+  storage.redis.hset("bigbench_bots", exports.id(), aStatus, callback);
+  storage.redis.publish("bigbench_bots_status", exports.id() + ":" + aStatus);
+}
+
+// Updates the bot status
+exports.heartbeat = function(){
+  heartbeat = setInterval(function(){
+    heartbeatCount++;
+    storage.redis.hset("bigbench_bots", exports.id(), status);
+    logger.print("Bot " + exports.id(), "Heartbeat #" + heartbeatCount + " - Uptime " + logger.numberFormat(heartbeatCount / ((heartbeatRate/1000) * 24)) + " Days", color.green);
+  }, heartbeatRate);
 }
 
 // Adds the bot to the registry
 exports.register = function(callback){
   storage.redis.publish("bigbench_bots_status", exports.id() + ":READY");
-  exports.status("STOPPED", callback);
+  exports.status("STOPPED", function(){
+    exports.heartbeat();
+    if(callback) callback();
+  });
 }
 
 // Removes the bot from the registry
 exports.unregister = function(callback){
+  status = "KILLED";
+  clearInterval(heartbeat);
   storage.redis.hdel("bigbench_bots", exports.id(), callback);
   storage.redis.publish("bigbench_bots_status", exports.id() + ":KILLED");
 }

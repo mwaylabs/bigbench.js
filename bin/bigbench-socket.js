@@ -3,6 +3,7 @@
 var config  = require('../config/config'),
     storage = require('../modules/storage'),
     color   = require('../modules/color'),
+    logger  = require('../modules/logger'),
     io      = require('socket.io').listen(config.websocket.port);
 
 // Setup
@@ -17,5 +18,5 @@ storage.open(function(){
   storage.redisForEvents.psubscribe("bigbench_*");
   
   // Print Status
-  console.log(color.green + "Ready" + color.reset);
+  logger.print("Socket", "Ready", color.green);
 });

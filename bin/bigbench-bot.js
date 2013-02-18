@@ -5,7 +5,8 @@ var config    = require('../config/config'),
     events    = require('../modules/events'),
     benchmark = require('../modules/benchmark'),
     bot       = require('../modules/bot'),
-    color     = require('../modules/color');
+    color     = require('../modules/color'),
+    logger    = require('../modules/logger');
 
 // Setup
 storage.open(function(){
@@ -14,7 +15,7 @@ storage.open(function(){
   bot.register();
   
   // Print Ready
-  console.log(color.green + bot.id() + " Ready" + color.reset);
+  logger.print("Bot " + bot.id(), "Ready", color.green);
   
   // Wait for Start
   events.waitForStart(function(){
@@ -35,7 +36,8 @@ process.on('SIGINT', function(){
 });
 
 process.on('uncaughtException', function(err){
-  console.log(color.red + err + color.reset);
+  throw err;
+  logger.print("Bot " + bot.id(), err, color.red);
   bot.unregister();
   process.exit(1);
 });

@@ -5,6 +5,7 @@ var storage       = require("../modules/storage"),
     tracker       = require("../modules/tracker"),
     config        = require("../config/config"),
     color         = require('../modules/color'),
+    logger        = require('../modules/logger'),
     crypto        = require('crypto'),
     http          = require('http'),
     fs            = require('fs'),
@@ -38,7 +39,7 @@ exports.save = function(benchmarkJSON, callback){
   exports.resetData(function(){
     storage.redis.set("bigbench_benchmark", benchmarkJSON, function(){
       storage.redis.publish("bigbench_benchmark_saved", benchmarkJSON);
-      console.log(color.green + "Saved" + color.reset);
+      logger.print("Benchmark", "Saved", color.green);
       callback();
     });
   });
@@ -280,7 +281,7 @@ exports.teardownAndStop = function(callback, error){
   exiting = true;
   events.stop("ALL");
   series.stop();
-  console.log(color.green + "Done" + color.reset);
+  logger.print("Benchmark", "Done", color.green);
   storage.redis.del("bigbench_status");
   storage.redis.publish("bigbench_status", "STOPPED");
   if(!error){ series.statistics(callback); }

@@ -7,6 +7,7 @@ var config        = require('../config/config'),
     benchmark     = require('../modules/benchmark'),
     bot           = require('../modules/bot'),
     color         = require('../modules/color'),
+    logger        = require('../modules/logger'),
     argument      = process.argv[2],
     argumentError = color.red + "ArgumentError: new, save, reset, start or stop required" + color.reset;
 
@@ -41,7 +42,7 @@ storage.open(function(){
   // Reset Redis
   if(argument === "reset"){
     storage.redis.flushall(function(){
-      console.log(color.green + "Flushed Redis" + color.reset);
+      logger.print("Benchmark", "Flushed Redis", color.green);
       process.exit(1);
     });
   }
@@ -85,6 +86,6 @@ process.on('SIGINT', function(){
 });
 
 process.on('uncaughtException', function(err){
-  console.log(color.red + err + color.reset);
+  logger.print("Benchmark", err, color.red);
   benchmark.teardownAndStop(function(){ process.exit(1); }, true);
 });

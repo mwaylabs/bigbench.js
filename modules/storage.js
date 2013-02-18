@@ -1,6 +1,7 @@
 var config         = require("../config/config"),
     redisdb        = require("redis"),
     color          = require('../modules/color'),
+    logger         = require('../modules/logger'),
     redis          = redisdb.createClient(config.redis.port, config.redis.host),
     redisForEvents = redisdb.createClient(config.redis.port, config.redis.host);
 
@@ -14,8 +15,8 @@ if(config.redis.password){
 exports.open = function(callback){
   
   // Log disconnection, etc.
-  redis.on("error",           function(error){ console.log(color.red + error + color.reset); });
-  redisForEvents.on("error",  function(error){ console.log(color.red + error + color.reset); });
+  redis.on("error",           function(error){ logger.print("Redis", error, color.red); });
+  redisForEvents.on("error",  function(error){ logger.print("RedisForEvents", error, color.red); });
   
   // Callback
   callback();
