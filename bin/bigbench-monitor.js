@@ -30,7 +30,7 @@ var systemUpdate = function(){
 var progressUpdate = function(){
   if(!isRunning) return;
   storage.redis.hgetall("bigbench_timing", function(error, timing){
-    var now      = events.now(),
+    var now      = new Date().getTime(),
         timeLeft = parseInt((parseInt(timing["STOP"]) - now) / 1000),
         progress = 100 - parseInt((parseInt(timing["STOP"]) - now) / (parseInt(timing["STOP"]) - parseInt(timing["START"])) * 100);
     

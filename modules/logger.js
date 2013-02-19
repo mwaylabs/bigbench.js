@@ -3,7 +3,7 @@ var color  = require('../modules/color'),
 
 // Prints an output line with date and format
 exports.print = function(label, content, colorcode){
-  var time    = events.now(),
+  var time    = new Date().getTime(),
       longest = 12,
       fillup  = longest - label.length,
       output  = "";
@@ -18,7 +18,7 @@ exports.print = function(label, content, colorcode){
 
 // Prints an output line with date and format
 exports.printLine = function(label, content){
-  var time    = events.now(),
+  var time    = new Date().getTime(),
       longest = 32,
       fillup  = longest - label.length,
       output  = "";

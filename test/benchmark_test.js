@@ -2,6 +2,7 @@ var helper    = require('./helper'),
     benchmark = require('../modules/benchmark'),
     tracker   = require('../modules/tracker'),
     storage   = require('../modules/storage'),
+    events    = require('../modules/events'),
     config    = require("../config/config");
 
 describe("Benchmark", function(){

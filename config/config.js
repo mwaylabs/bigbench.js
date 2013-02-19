@@ -3,7 +3,7 @@ var test = {
   name: "test",
   redis: {
     host: "localhost",
-    port: 6379
+    port: 6380
   },
   websocket: {
     port: 3001
@@ -44,7 +44,7 @@ var environments = {
 // Loads a config.js from the current working directory or the default config from the environments
 var config;
 try{      config = require(process.cwd() + "/config.js");        }
-catch(e){ config = environments[process.env.NODE_ENV || "test"]; }
+catch(e){ config = environments[process.env.NODE_ENV || "development"]; }
 
 // returns the config
 module.exports = config;
