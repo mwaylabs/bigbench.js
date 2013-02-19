@@ -1,7 +1,7 @@
 {
   "name": "bigbench",
   "description": "Distributed Benchmarking",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "bin": {
     "bigbench.js"         : "bin/bigbench.js",
     "bigbench-bot.js"     : "bin/bigbench-bot.js",

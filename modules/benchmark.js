@@ -283,6 +283,7 @@ exports.teardownAndStop = function(callback, error){
   series.stop();
   logger.print("Benchmark", "Done", color.green);
   storage.redis.del("bigbench_status");
+  storage.redis.del("bigbench_timing");
   storage.redis.publish("bigbench_status", "STOPPED");
   if(!error){ series.statistics(callback); }
   else{ callback(); }
