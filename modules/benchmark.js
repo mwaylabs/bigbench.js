@@ -147,7 +147,7 @@ exports.request = function(benchmark, index, agent){
 
 // Ensures the action maps the parameters, etc.
 exports.validateAction = function(action, agent){
-  var options = { agent: agent };
+  var options = { agent: agent, headers: exports.validateHeaders(action) };
   if(action.host){      options.host      = action.host; };
   if(action.hostname){  options.hostname  = action.hostname; };
   if(action.path){      options.path      = action.path; };
@@ -158,10 +158,23 @@ exports.validateAction = function(action, agent){
   // add query string to path
   if(action.method !== "POST"){ options.path += "?" + exports.validateParams(action.params); }
   
-  // set post header
-  if(action.method === "POST"){ options.headers = { "Content-type": "application/x-www-form-urlencoded" }; }
-  
   return options;
+}
+
+// Converts the headers keys to lower cases and adds a form if POST and not overridden
+exports.validateHeaders = function(action){
+  var headers    = action.headers || {},
+      newHeaders = {};
+  
+  // default post header
+  if(action.method === "POST"){ newHeaders = { "content-type": "application/x-www-form-urlencoded" }; }
+  
+  // lowercase all keys
+  Object.keys(headers).forEach(function(key){
+    newHeaders[key.toLowerCase()] = headers[key];
+  });
+  
+  return newHeaders;
 }
 
 // Checks weather params is an object or function and converts it to an object

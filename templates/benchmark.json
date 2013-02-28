@@ -41,7 +41,8 @@
       "path": "/signin",
       "port": 80,
       "method": "POST",
-      "params": { "user": "credentials" }
+      "params": { "user": "credentials" },
+      "headers": { "content-type": "application/json" }
     }
   ]
 }

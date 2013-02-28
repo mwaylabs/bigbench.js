@@ -48,6 +48,16 @@ app.post('/upload', function(req, res){
   }
 });
 
+// 200 if GET /blank
+app.get('/types', function(req, res){
+  if (req.headers['content-type'] === "application/json") {
+    res.setHeader('Content-Type', 'text/plain');
+    res.end("Ok");
+  } else{
+    res.send(500, 'Sorry, content type wasnt application/json');
+  };
+});
+
 // returns a random status
 var randomStatus = function(){
   var index    = Math.floor(Math.random() * 3),
