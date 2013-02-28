@@ -70,6 +70,7 @@
           <ul id="bigbench-affix" class="nav nav-list bs-docs-sidenav affix span2" style="margin-left: 0px; margin-top: 50px;" data-spy="affix" data-offset-top="400">
             <li class="active"><a href="#intro"><i class="icon-chevron-right"></i> Intro</a></li>
             <li><a href="#benchmark"><i class="icon-chevron-right"></i> Benchmark</a></li>
+            <li><a href="#api"><i class="icon-chevron-right"></i> API</a></li>
             <li><a href="#setup"><i class="icon-chevron-right"></i> Setup</a></li>
             <li><a href="#control"><i class="icon-chevron-right"></i> Control</a></li>
             <li><a href="#data"><i class="icon-chevron-right"></i> Data and Events</a></li>
@@ -150,6 +151,7 @@
           "path": "/secret",
           "port": 80,
           "method": "GET",
+          "headers": { "content-type" : "application/json" },
           "auth": "user:password"
         },
         {
@@ -171,6 +173,176 @@
       ]
     }</pre>
         </section>
+        
+        <section id="api">
+          <div class="page-header">
+            <h1>API <small>Setup of a Benchmark</small></h1>
+          </div>
+          
+          <h3>Global Scope</h3>
+          <p>The following values are valid for the whole benchmark and not changeable on an action basis:</p>
+          
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Type</th>
+                <th>Unit</th>
+                <th>Sample</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>duration</b></td>
+                <td><em>Integer</em></td>
+                <td>Seconds</td>
+                <td><code>30</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The amount if time after which the benchmark stops</td>
+              </tr>
+                  
+              <tr>
+                <td><b>concurrency</b></td>
+                <td><em>Integer</em></td>
+                <td>Requests</td>
+                <td><code>5</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The amount of simultaneously sent requests per bot</td>
+              </tr>
+                  
+              <tr>
+                <td><b>rampUp</b></td>
+                <td><em>Integer</em></td>
+                <td>Seconds</td>
+                <td><code>120</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The amount of time it takes until all bots fire with full power</td>
+              </tr>
+                  
+              <tr>
+                <td><b>delay</b></td>
+                <td><em>Integer</em></td>
+                <td>Milliseconds</td>
+                <td><code>100</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The amount of time the framework waits until the next action is requested</td>
+              </tr>
+            </tbody>
+          </table>
+              
+              
+          <h3>Action Scope</h3>
+          <p>The following attributes are possible values for a single action:</p>
+          
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Attribute</th>
+                <th>Type</th>
+                <th>Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>name</b></td>
+                <td><em>String</em></td>
+                <td>-</td>
+                <td><code>"Google Search"</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The name of the action for identification</td>
+              </tr>
+                  
+              <tr>
+                <td><b>hostname</b></td>
+                <td><em>String</em></td>
+                <td>Host or IP</td>
+                <td><code>www.google.de</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The host of the actions target</td>
+              </tr>
+                  
+              <tr>
+                <td><b>path</b></td>
+                <td><em>String</em></td>
+                <td>Path</td>
+                <td><code>"/a/name"</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The path of the action</td>
+              </tr>
+                  
+              <tr>
+                <td><b>port</b></td>
+                <td><em>Integer</em></td>
+                <td>Port</td>
+                <td><code>80</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The port of the actions target</td>
+              </tr>
+                  
+              <tr>
+                <td><b>method</b></td>
+                <td><em>String</em></td>
+                <td>HTTP Verb</td>
+                <td><code>GET</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The method of your targets action</td>
+              </tr>
+                  
+              <tr>
+                <td><b>headers</b></td>
+                <td><em>Object</em></td>
+                <td>Headers</td>
+                <td><code>{ "content-type" : "application/json" }</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The HTTP headers you want to send to the target</td>
+              </tr>
+                  
+              <tr>
+                <td><b>auth</b></td>
+                <td><em>String</em></td>
+                <td>Credentials</td>
+                <td><code>"username:password"</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The username and password for a basic auth protected action</td>
+              </tr>
+                  
+              <tr>
+                <td><b>params</b></td>
+                <td><em>Object or String</em></td>
+                <td>Parameters</td>
+                <td><code>{ q: "searchterm" }</code> or <code>"function(){ return { q: 'searchterm' }; }"</code></td>
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan="3" class="muted">The parameters to send to the action. Either as a ready to use object with key value pairs,
+                  or a string that contains a function that returns such an object dynamically on every request.</td>
+              </tr>
+                  
+            </tbody>
+          </table>
+      </section>
 
         <section id="setup">
           <div class="page-header" id="setup">
