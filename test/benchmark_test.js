@@ -109,7 +109,7 @@ describe("Benchmark", function(){
     },
     validatedOptions = benchmark.validateAction(action);
     validatedOptions.hostname.should.eql("www.google.de");
-    validatedOptions.path.should.eql("/?");
+    validatedOptions.path.should.eql("/");
     validatedOptions.port.should.eql(80);
     validatedOptions.method.should.eql("GET");
     validatedOptions.headers.should.eql({});

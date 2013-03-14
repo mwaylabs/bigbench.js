@@ -156,7 +156,10 @@ exports.validateAction = function(action, agent){
   if(action.auth){      options.auth      = action.auth; };
   
   // add query string to path
-  if(action.method !== "POST"){ options.path += "?" + exports.validateParams(action.params); }
+  if(action.method !== "POST"){
+    var queryString = exports.validateParams(action.params);
+    if(queryString !== ""){ options.path += "?" + queryString }
+  }
   
   return options;
 }
