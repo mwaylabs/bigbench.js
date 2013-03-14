@@ -116,6 +116,7 @@ exports.request = function(benchmark, index, agent){
   
   var action   = benchmark.actions[index],
       options  = exports.validateAction(action, agent),
+      options  = exports.validateProxy(options, benchmark, action),
       duration = 0,
       started  = new Date().getTime(),
       request  = http.request(options, function(response) {
@@ -178,6 +179,22 @@ exports.validateHeaders = function(action){
   });
   
   return newHeaders;
+}
+
+// Checks if a global proxy is set and applies it to the request
+exports.validateProxy = function(options, benchmark, action){
+  if(benchmark.proxyUrl && benchmark.proxyPort){
+    
+    // add host to headers
+    options.headers.host = options.headers.host || action.hostname + ":" + action.port;
+    
+    // modify paths to allow node to perform proxy request
+    options.path     = "http://" + options.hostname + ":" + options.port + options.path;
+    options.hostname = benchmark.proxyUrl;
+    options.port     = benchmark.proxyPort;
+    
+  }
+  return options;
 }
 
 // Checks weather params is an object or function and converts it to an object

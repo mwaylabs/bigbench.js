@@ -98,6 +98,39 @@ describe("Benchmark", function(){
     });
   });
   
+  it("run the benchmark via proxy", function(done){
+    var json = JSON.parse(benchmarkJSON);
+    json.proxyUrl = "localhost";
+    json.proxyPort = 9000;
+    
+    var proxyBenchmarkJSON = JSON.stringify(json);
+    
+    benchmark.save(proxyBenchmarkJSON, function(){
+      benchmark.run(function(){
+        tracker.findForAction(0, function(trackings){
+          parseInt(trackings[200]).should.be.above(50);
+          
+          tracker.findForAction(1, function(trackings){
+            parseInt(trackings[200]).should.be.above(50);
+            
+            tracker.findForAction(2, function(trackings){
+              parseInt(trackings[200]).should.be.above(50);
+              
+              tracker.findForAction(3, function(trackings){
+                parseInt(trackings[200]).should.be.above(50);
+                
+                tracker.find(function(trackings){
+                  parseInt(trackings[200]).should.be.above(200);
+                  done();
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+  
   it("validates a GET action without query string", function(){
     var action = {
       name: 'Google Page',
