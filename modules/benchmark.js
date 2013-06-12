@@ -137,6 +137,7 @@ exports.request = function(benchmark, index, agent){
           if(benchmark.delay <= 0){ exports.request(benchmark, index, agent); }
           else{ setTimeout(function(){exports.request(benchmark, index, agent); }, benchmark.delay); }
         });
+        response.resume();
       });
   
   

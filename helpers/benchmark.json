@@ -1,0 +1,15 @@
+{
+  "duration":     60,
+  "concurrency":  1,
+  "delay":        0,
+  "rampUp":       20,
+  "actions":[
+    {
+      "name": "Southdesign Startpage",
+      "hostname": "southdesign.de",
+      "path": "/",
+      "port": 80,
+      "method": "GET"
+    }
+  ]
+}

@@ -108,6 +108,7 @@ describe("Benchmark", function(){
     benchmark.save(proxyBenchmarkJSON, function(){
       benchmark.run(function(){
         tracker.findForAction(0, function(trackings){
+          console.log("Trackings: ", trackings);
           parseInt(trackings[200]).should.be.above(50);
           
           tracker.findForAction(1, function(trackings){

@@ -23,9 +23,13 @@ The benchmark is fully controlled from a single instance, e.g. the localhost. Al
 We created BigBench because we were not satisfied with the usability and features of jMeter and ApacheBench. Our approach is to make it easy to use but with a maximum of performance.
 
 ## Testing
-Run all tests with:
+To test start the following components:
+    
+    redis-server --port 6380
+    node helpers/test_server.js
+    node helpers/test_proxy.js
 
-    NODE_ENV=test mocha
+    jake test
 
 ## Contributing
 1. Fork it

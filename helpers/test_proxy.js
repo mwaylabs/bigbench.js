@@ -1,6 +1,8 @@
 var http  = require('http'),
     url   = require('url'),
     proxy = http.createServer(function(request, response) {
+      
+      // Parse Options for Tunnel Request
       var parsedOptions = url.parse(request.url),
           options       = {
             hostname : parsedOptions.hostname,
@@ -15,27 +17,29 @@ var http  = require('http'),
       console.log(request.headers);
       console.log(options);
   
-      // Request
-      var proxy = http.request(options, function(res) {
-        response.writeHead(res.statusCode, res.headers);
-        res.on('data', function (chunk) { response.write(chunk);  });
-        res.on('end', function (chunk) {  response.end();         });
-      })
+      // Tunnel Request
+      var tunnelRequest = http.request(options, function(tunnelResponse) {
+        response.writeHead(tunnelResponse.statusCode, tunnelResponse.headers);
+        tunnelResponse.on('data', function (chunk) {  response.write(chunk); });
+        tunnelResponse.on('end', function () {        response.end(); });
+        tunnelResponse.resume();
+      });
+      tunnelRequest.on('error', function(e) {
+        console.log('Error with tunnelRequest: ' + e.message);
+      });
       
-      // Body on Post
+      // POST requests need to wait for all data to be fetched before tunnel request
+      // can be send. All others can be sent right away
       if(request.method !== "GET"){
-        request.on('data', function (data) { proxy.write(data); });
+        request.on('data', function (chunk) { tunnelRequest.write(chunk); });
+        request.on('end', function(){         tunnelRequest.end(); });
+      } else{
+        tunnelRequest.end();
       }
-      
-      // Incomung Request Completed
-      request.on('end', function (data) { proxy.end(); });
       
     }).listen(9000);
 
-proxy.on('error', function (e) {
-  console.log("\n-> Error: Could not Proxy");
-  console.log(e);
-});
+
 
 http.createServer(function(request, response) {
   response.end("Ok");
