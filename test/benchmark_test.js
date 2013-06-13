@@ -3,61 +3,23 @@ var helper    = require('./helper'),
     tracker   = require('../modules/tracker'),
     storage   = require('../modules/storage'),
     events    = require('../modules/events'),
-    config    = require("../config/config");
+    config    = require("../config/config"),
+    fs        = require("fs");
 
 describe("Benchmark", function(){
   
   // clear redis before every test
   beforeEach(function(done){ helper.clearRedis(done); });
-  
-  var benchmarkJSON = '\
-    {\
-      "duration": 2,\
-      "rampUp":   20,\
-      "actions":[\
-        {\
-          "name": "Blank Page",\
-          "hostname": "localhost",\
-          "path": "/blank",\
-          "port": 8888,\
-          "method": "GET"\
-        },\
-        {\
-          "name": "Parameter Page",\
-          "hostname": "localhost",\
-          "headers": { "Content-Type": "application/json" },\
-          "path": "/params",\
-          "port": 8888,\
-          "method": "GET",\
-          "params": "function(){ return { say: \'hello\', to: \'me\' }}"\
-        },\
-        {\
-          "name": "Post Page",\
-          "hostname": "localhost",\
-          "path": "/upload",\
-          "port": 8888,\
-          "method": "POST",\
-          "params": "function(){ return { say: \'hello\', to: \'me\' }}"\
-        },\
-        {\
-          "name": "Headers Page",\
-          "hostname": "localhost",\
-          "path": "/types",\
-          "port": 8888,\
-          "method": "GET",\
-          "headers": { "Content-Type": "application/json" }\
-        }\
-      ]\
-    }\
-  ';
+  var benchmarkJS       = fs.readFileSync("test/fixtures/benchmark.js"),
+      benchmarkProxyJS  = fs.readFileSync("test/fixtures/benchmarkProxy.js");
   
   it("stores and loads benchark globally", function(done){
-    benchmark.save(benchmarkJSON, function(){
+    benchmark.save(benchmarkJS, function(){
       benchmark.load(function(aBenchmark){
         aBenchmark.duration.should.eql(2);
-        aBenchmark.actions[0].port.should.eql(8888);
-        aBenchmark.actions[1].params().should.eql({ say: 'hello', to: 'me' });
-        aBenchmark.actions[1].headers.should.eql({ "Content-Type": 'application/json' });
+        aBenchmark.actions[0]().port.should.eql(8888);
+        aBenchmark.actions[1]().params.should.eql({ say: 'hello', to: 'me' });
+        aBenchmark.actions[2]().headers.should.eql({ "Content-Type": 'application/json' });
         done();
       });
     });
@@ -72,7 +34,7 @@ describe("Benchmark", function(){
   });
   
   it("run the benchmark", function(done){
-    benchmark.save(benchmarkJSON, function(){
+    benchmark.save(benchmarkJS, function(){
       benchmark.run(function(){
         tracker.findForAction(0, function(trackings){
           parseInt(trackings[200]).should.be.above(50);
@@ -83,13 +45,9 @@ describe("Benchmark", function(){
             tracker.findForAction(2, function(trackings){
               parseInt(trackings[200]).should.be.above(50);
               
-              tracker.findForAction(3, function(trackings){
-                parseInt(trackings[200]).should.be.above(50);
-                
-                tracker.find(function(trackings){
-                  parseInt(trackings[200]).should.be.above(200);
-                  done();
-                });
+              tracker.find(function(trackings){
+                parseInt(trackings[200]).should.be.above(200);
+                done();
               });
             });
           });
@@ -99,13 +57,7 @@ describe("Benchmark", function(){
   });
   
   it("run the benchmark via proxy", function(done){
-    var json = JSON.parse(benchmarkJSON);
-    json.proxyUrl = "localhost";
-    json.proxyPort = 9000;
-    
-    var proxyBenchmarkJSON = JSON.stringify(json);
-    
-    benchmark.save(proxyBenchmarkJSON, function(){
+    benchmark.save(benchmarkProxyJS, function(){
       benchmark.run(function(){
         tracker.findForAction(0, function(trackings){
           console.log("Trackings: ", trackings);
@@ -117,13 +69,9 @@ describe("Benchmark", function(){
             tracker.findForAction(2, function(trackings){
               parseInt(trackings[200]).should.be.above(50);
               
-              tracker.findForAction(3, function(trackings){
-                parseInt(trackings[200]).should.be.above(50);
-                
-                tracker.find(function(trackings){
-                  parseInt(trackings[200]).should.be.above(200);
-                  done();
-                });
+              tracker.find(function(trackings){
+                parseInt(trackings[200]).should.be.above(200);
+                done();
               });
             });
           });

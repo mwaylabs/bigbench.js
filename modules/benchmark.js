@@ -35,10 +35,10 @@ exports.exiting = function(yesOrNo){
 }
 
 // Flushes the redis and globally saves a benchark as JSON
-exports.save = function(benchmarkJSON, callback){
+exports.save = function(benchmarkJS, callback){
   exports.resetData(function(){
-    storage.redis.set("bigbench_benchmark", benchmarkJSON, function(){
-      storage.redis.publish("bigbench_benchmark_saved", benchmarkJSON);
+    storage.redis.set("bigbench_benchmark", benchmarkJS, function(){
+      storage.redis.publish("bigbench_benchmark_saved", benchmarkJS);
       logger.print("Benchmark", "Saved", color.green);
       callback();
     });
@@ -47,21 +47,10 @@ exports.save = function(benchmarkJSON, callback){
 
 // Loads and evaluates a benchmark string as closure from the global store
 exports.load = function(callback){
-  storage.redis.get("bigbench_benchmark", function(error, benchmarkJSON){
-    if(benchmarkJSON){ callback(exports.parseAndEvaluateFromJSON(benchmarkJSON));
-    } else{            callback(false); }
+  storage.redis.get("bigbench_benchmark", function(error, benchmarkJS){
+    if(benchmarkJS){ callback(exports.requireString(benchmarkJS));
+    } else{          callback(false); }
   });
-}
-
-// Parses the JSON and evaluates the params from string or object to function or object
-exports.parseAndEvaluateFromJSON = function(json){
-  var benchmarkObject = JSON.parse(json);
-  for (var i = 0; i < benchmarkObject.actions.length; i++) {
-    if(typeof benchmarkObject.actions[i].params === "string"){
-      benchmarkObject.actions[i].params = eval("(" + benchmarkObject.actions[i].params + ")");
-    }
-  };
-  return benchmarkObject;
 }
 
 // Resets the collected data but leaves the bots and benchmark intact
@@ -114,7 +103,7 @@ exports.run = function(done){
 exports.request = function(benchmark, index, agent){
   if(status !== "RUNNING"){ return; }
   
-  var action   = benchmark.actions[index],
+  var action   = benchmark.actions[index](),
       options  = exports.validateAction(action, agent),
       options  = exports.validateProxy(options, benchmark, action),
       duration = 0,
@@ -212,6 +201,20 @@ exports.isFunction = function(obj){
 // Checks if the supplied object is a function
 exports.toObject = function(objectOrFunction){
   return exports.isFunction(objectOrFunction) ? objectOrFunction() : objectOrFunction;
+}
+
+// Allows to load a string as module - used for the benchmark.js
+exports.requireString = function(moduleString) {
+  var token           = crypto.randomBytes(20).toString('hex'),
+      filename        = __dirname + token + '.js',
+      requiredModule  = false;
+
+  // write, require, delete
+  fs.writeFileSync(filename, moduleString);
+  requiredModule = require(filename);
+  fs.unlinkSync(filename);
+
+  return requiredModule;
 }
 
 // Copies the benchmark template to the current directory for the new command
