@@ -25,6 +25,11 @@ storage.open(function(){
     benchmark.saveBenchmarkFromArgument(function(){ process.exit(1); });
   }
   
+  // Test Benchmark
+  if(argument === "test"){
+    benchmark.testBenchmarkFromArgument(function(){ process.exit(1); });
+  }
+  
   // Start Benchmark
   if(argument === "start"){
     benchmark.setupAndStart(function(){ process.exit(1); });
@@ -62,6 +67,7 @@ Usage: bigbench action [arguments]\n\
 Actions:\n\
 new                 // Create a benchmark skeleton\n\
 save benchmark.js   // Global save the benchmark\n\
+test benchmark.js   // Test run all benchmark actions\n\
 reset               // Resets redis full incl. bots\n\
 start               // Start the saved benchmark\n\
 stop                // Stop the running benchmark\n\
@@ -73,6 +79,7 @@ stop                // Stop the running benchmark\n\
   if(!argument 
     || argument !== "new" 
     && argument !== "save" 
+    && argument !== "test" 
     && argument !== "start" 
     && argument !== "stop" 
     && argument !== "reset" 

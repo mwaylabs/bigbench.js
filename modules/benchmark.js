@@ -12,6 +12,7 @@ var storage       = require("../modules/storage"),
     util          = require('util'),
     querystring   = require("querystring"),
     status        = "STOPPED",
+    testrun       = false,
     exiting       = false,
     stopTimeout   = null,
     stopCallback  = null;
@@ -19,12 +20,12 @@ var storage       = require("../modules/storage"),
 // Global running state
 exports.start   = function(){
   status = "RUNNING";
-  bot.status(status);
+  if(!testrun){ bot.status(status); }
   stopCallback = null;
 }
 exports.stop    = function(){
   status = "STOPPED";
-  bot.status(status);
+  if(!testrun){ bot.status(status); }
   if(stopTimeout){  clearTimeout(stopTimeout); }
   if(stopCallback){ stopCallback(); }
 }
@@ -121,7 +122,10 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
           
           // next action / request
           index += 1;
-          if(index > benchmark.actions.length - 1){ index = 0 };
+          if(index > benchmark.actions.length - 1){
+            if(testrun){ exports.stop(); }
+            index = 0
+          };
           
           // call with or without delay
           if(benchmark.delay <= 0){ exports.request(benchmark, index, agent, response, action, state); }
@@ -220,13 +224,13 @@ exports.requireString = function(moduleString) {
 
 // Copies the benchmark template to the current directory for the new command
 exports.createBenchmarkFromTemplate = function(callback){
-  var template  = fs.createReadStream(__dirname + '/../templates/benchmark.json'),
+  var template  = fs.createReadStream(__dirname + '/../templates/benchmark.js'),
       template2 = fs.createReadStream(__dirname + '/../templates/config.js'),
-      copy      = fs.createWriteStream('benchmark.json'),
+      copy      = fs.createWriteStream('benchmark.js'),
       copy2     = fs.createWriteStream('config.js');
   
   template.on('close', function(){
-    console.log(color.green + "Created benchmark.json" + color.reset);
+    console.log(color.green + "Created benchmark.js" + color.reset);
   })
   
   template2.on('close', function(){
@@ -249,6 +253,22 @@ exports.saveBenchmarkFromArgument = function(callback){
   
   // save
   exports.save(benchmarkString, callback);
+}
+
+// Checks if the supplied argument is a file or a string. If it is a file it
+// is read, then saved, then run once
+exports.testBenchmarkFromArgument = function(callback){
+  if(!process.argv[3]){ throw "Please supply a benchmark file..."};
+  var benchmarkString = fs.readFileSync(process.argv[3]);
+  
+  // throws an error if benchmark is invalid
+  eval(benchmarkString);
+  
+  // save and run once
+  exports.save(benchmarkString, function(){
+    testrun = true;
+    exports.run(callback);
+  });
 }
 
 // Sets up and runs a full benchmark with ramp up, etc.
