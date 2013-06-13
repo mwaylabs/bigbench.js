@@ -11,10 +11,11 @@ describe("Benchmark", function(){
   // clear redis before every test
   beforeEach(function(done){ helper.clearRedis(done); });
   var benchmarkJS       = fs.readFileSync("test/fixtures/benchmark.js"),
+      benchmarkStaticJS = fs.readFileSync("test/fixtures/benchmarkStatic.js"),
       benchmarkProxyJS  = fs.readFileSync("test/fixtures/benchmarkProxy.js");
   
   it("stores and loads benchark globally", function(done){
-    benchmark.save(benchmarkJS, function(){
+    benchmark.save(benchmarkStaticJS, function(){
       benchmark.load(function(aBenchmark){
         aBenchmark.duration.should.eql(2);
         aBenchmark.actions[0]().port.should.eql(8888);
@@ -60,7 +61,6 @@ describe("Benchmark", function(){
     benchmark.save(benchmarkProxyJS, function(){
       benchmark.run(function(){
         tracker.findForAction(0, function(trackings){
-          console.log("Trackings: ", trackings);
           parseInt(trackings[200]).should.be.above(50);
           
           tracker.findForAction(1, function(trackings){

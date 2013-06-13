@@ -91,8 +91,9 @@ exports.run = function(done){
     // start concurrent
     exports.start();
     for (var i = 0; i < benchmark.concurrency; i++) {
-      var agent = new http.Agent({ maxSockets: 1 });
-      exports.request(benchmark, 0, agent);
+      var agent = new http.Agent({ maxSockets: 1 }),
+          state = {};
+      exports.request(benchmark, 0, agent, null, null, state);
     };
     
     stopCallback = done;
@@ -100,10 +101,10 @@ exports.run = function(done){
 }
 
 // Cycle through all actions and request it
-exports.request = function(benchmark, index, agent){
+exports.request = function(benchmark, index, agent, lastResponse, lastAction, state){
   if(status !== "RUNNING"){ return; }
   
-  var action   = benchmark.actions[index](),
+  var action   = benchmark.actions[index](lastResponse, lastAction, state),
       options  = exports.validateAction(action, agent),
       options  = exports.validateProxy(options, benchmark, action),
       duration = 0,
@@ -123,8 +124,8 @@ exports.request = function(benchmark, index, agent){
           if(index > benchmark.actions.length - 1){ index = 0 };
           
           // call with or without delay
-          if(benchmark.delay <= 0){ exports.request(benchmark, index, agent); }
-          else{ setTimeout(function(){exports.request(benchmark, index, agent); }, benchmark.delay); }
+          if(benchmark.delay <= 0){ exports.request(benchmark, index, agent, response, action, state); }
+          else{ setTimeout(function(){exports.request(benchmark, index, agent, response, action, state); }, benchmark.delay); }
         });
         response.resume();
       });

@@ -15,8 +15,6 @@ exports.actions = [
       "port":     8888,
       "method":   "GET"
     };
-    if(state.remember){ throw "State was not cleared!" }
-    state.remember = 5;
     return action;
   },
   
@@ -29,8 +27,6 @@ exports.actions = [
       "method":   "POST",
       "params":   { say: 'hello', to: 'me' }
     };
-    if(lastAction.path !== "/blank"){     throw "Last action was not passed properly!" }
-    if(lastResponse.statusCode !== 200){  throw "Last response was not 200!" }
     return action;
   },
   
@@ -44,8 +40,6 @@ exports.actions = [
       "method":   "GET",
       "headers":  { "Content-Type": "application/json" }
     };
-    if(state.remember !== 5){ throw "State of 5 was not remembered!" }
-    delete state.remember;
     return action;
   }
 ];
