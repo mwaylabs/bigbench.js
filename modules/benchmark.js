@@ -234,7 +234,7 @@ exports.toObject = function(objectOrFunction){
 // Allows to load a string as module - used for the benchmark.js
 exports.requireString = function(moduleString) {
   var token           = crypto.randomBytes(20).toString('hex'),
-      filename        = os.tmpdir() + token + '.js',
+      filename        = os.tmpdir() + "/" + token + '.js',
       requiredModule  = false;
 
   // write, require, delete
