@@ -1,8 +1,9 @@
 // Global Settings
-exports.duration    = 120;
-exports.concurrency = 1;
-exports.delay       = 0;
-exports.rampUp      = 20;
+exports.duration        = 120;
+exports.concurrency     = 1;
+exports.delay           = 0;
+exports.rampDownDelay   = 0;
+exports.rampUp          = 20;
 
 // Actions
 exports.actions = [

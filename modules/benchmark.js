@@ -13,9 +13,11 @@ var storage       = require("../modules/storage"),
     util          = require('util'),
     querystring   = require("querystring"),
     status        = "STOPPED",
+    t             = 0,
     testrun       = false,
     exiting       = false,
     stopTimeout   = null,
+    timerInterval = null,
     stopCallback  = null;
 
 // Global running state
@@ -27,7 +29,8 @@ exports.start   = function(){
 exports.stop    = function(){
   status = "STOPPED";
   if(!testrun){ bot.status(status); }
-  if(stopTimeout){  clearTimeout(stopTimeout); }
+  if(stopTimeout){  clearTimeout(stopTimeout);      }
+  if(timerInterval){ clearInterval(timerInterval);  }
   if(stopCallback){ stopCallback(); }
 }
 exports.status  = function(){ return status; }
@@ -82,13 +85,18 @@ exports.run = function(done){
   exports.load(function(benchmark){
   
     // options
-    benchmark.duration    = benchmark.duration    || 60;
-    benchmark.delay       = benchmark.delay       || 0;
-    benchmark.concurrency = benchmark.concurrency || 1;
+    benchmark.duration      = benchmark.duration      || 60;
+    benchmark.delay         = benchmark.delay         || 0;
+    benchmark.rampDownDelay = benchmark.rampDownDelay || 0;
+    benchmark.concurrency   = benchmark.concurrency   || 1;
     if(!benchmark.actions || benchmark.actions.length <= 0) throw "Please add at least one action...";
   
     // stop
     stopTimeout = setTimeout(exports.stop, benchmark.duration * 1000);
+    
+    // timer
+    t = 0;
+    timerInterval = setInterval(function(){ t += 0.1; }, 100);
   
     // start concurrent
     exports.start();
@@ -109,6 +117,7 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
   var action   = benchmark.actions[index](lastResponse, lastAction, state),
       options  = exports.validateAction(action, agent),
       options  = exports.validateProxy(options, benchmark, action),
+      delay    = exports.calculateDelay(benchmark),
       duration = 0,
       started  = new Date().getTime(),
       request  = http.request(options, function(response) {
@@ -131,9 +140,12 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
             index = 0
           };
           
+          // delay
+          
+          
           // call with or without delay
-          if(benchmark.delay <= 0){ exports.request(benchmark, index, agent, response, action, state); }
-          else{ setTimeout(function(){exports.request(benchmark, index, agent, response, action, state); }, benchmark.delay); }
+          if(delay <= 0){ exports.request(benchmark, index, agent, response, action, state); }
+          else{ setTimeout(function(){exports.request(benchmark, index, agent, response, action, state); }, delay); }
         });
         
         
@@ -145,6 +157,12 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
   
   request.end();
 }
+
+// Calculates the current delay based on the rampDownDelay
+exports.calculateDelay = function(benchmark){
+  if(benchmark.delay <= 0 || benchmark.rampDownDelay <= 0){ return 0; }
+  return (parseFloat(benchmark.delay) - (t * (parseFloat(benchmark.delay)/parseFloat(benchmark.rampDownDelay))));
+};
 
 // Ensures the action maps the parameters, etc.
 exports.validateAction = function(action, agent){
