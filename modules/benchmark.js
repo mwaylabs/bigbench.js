@@ -113,6 +113,9 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
       started  = new Date().getTime(),
       request  = http.request(options, function(response) {
         response.setEncoding('utf8');
+        response.on('readable', function(){
+          response.body = response.read();
+        });
         response.on('end', function () {
           
           // duration
@@ -132,7 +135,8 @@ exports.request = function(benchmark, index, agent, lastResponse, lastAction, st
           if(benchmark.delay <= 0){ exports.request(benchmark, index, agent, response, action, state); }
           else{ setTimeout(function(){exports.request(benchmark, index, agent, response, action, state); }, benchmark.delay); }
         });
-        response.resume();
+        
+        
       });
   
   
