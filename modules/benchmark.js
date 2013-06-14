@@ -9,6 +9,7 @@ var storage       = require("../modules/storage"),
     crypto        = require('crypto'),
     http          = require('http'),
     fs            = require('fs'),
+    os            = require('os'),
     util          = require('util'),
     querystring   = require("querystring"),
     status        = "STOPPED",
@@ -211,7 +212,7 @@ exports.toObject = function(objectOrFunction){
 // Allows to load a string as module - used for the benchmark.js
 exports.requireString = function(moduleString) {
   var token           = crypto.randomBytes(20).toString('hex'),
-      filename        = __dirname + token + '.js',
+      filename        = os.tmpdir() + token + '.js',
       requiredModule  = false;
 
   // write, require, delete
